@@ -77,6 +77,11 @@ Namespace GLE
 		Return _RadToDeg(tmp)
 	End Function
 	
+	Function v2d.IsInRect(ByVal test As Rect) As BOOL
+		If This.x > test.x And This.x < (test.x + test.w) And This.y > test.y And This.y < (test.y + test.h) Then Return TRUE
+		Return FALSE
+	End Function
+	
 	''===================================================================================================
 	'' Operators
 	''===================================================================================================

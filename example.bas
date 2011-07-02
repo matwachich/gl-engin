@@ -1,4 +1,5 @@
 #Include "glengin.bi"
+#Include "perso/dyn_array.bi"
 
 Using GLE
 
@@ -17,16 +18,16 @@ Dim Shared part_FLY As Particle_Emitter
 part_FLY = Particle_Emitter(@tex_Particles, Rect(0*32, 3*32, 32, 32))
 With part_FLY
 	'.Position = v2d(400,300)
-	.PositionVar = v2d(5, 5)
+	.PositionVar = v2d(3, 3)
 	
-	.Vel = 300
-	.VelVar = 50
+	.Vel = 200
+	.VelVar = 100
 	
 	.Accel = 0
 	.AccelVar = 0
 	
 	.Angle = 180
-	.AngleVar = 5
+	.AngleVar = 10
 	
 	.Force = 0
 	.ForceVar = 0
@@ -37,11 +38,11 @@ With part_FLY
 	.SpinVar = 1200
 	.SpinFlyVar = 0
 	
-	.Size = 16
-	.SizeVar = 2
+	.Size = 12
+	.SizeVar = 4
 	.SizeFlyVar = -200
 	
-	.Clr.Set(255,255,255,96)
+	.Clr.Set(255,255,255,64)
 	.Clr.SetVar(0,255,255,0)
 	.FlyVar_R = 0
 	.FlyVar_G = 0
@@ -50,7 +51,7 @@ With part_FLY
 	.BlendMode = BM_BLENDED
 	
 	.Max_Particles = 200
-	.ParticlesPerEmitte = 5
+	.ParticlesPerEmitte = 7
 	.Emitte_Delay = 0.01
 	
 	.Life_Time = 0.1
@@ -81,9 +82,9 @@ With part_SHOOT
 	.SpinVar = 1200
 	.SpinFlyVar = 0
 	
-	.Size = 10
+	.Size = 8
 	.SizeVar = 0
-	.SizeFlyVar = -200
+	.SizeFlyVar = -150
 	
 	.Clr.Set(64,128,64,192)
 	.Clr.SetVar(0,0,0,0)
@@ -135,7 +136,7 @@ With part_SMOKE
 	.FlyVar_G = 0
 	.FlyVar_B = 0
 	.FlyVar_A = 0
-	.BlendMode = BM_BLACK
+	.BlendMode = BM_TRANS
 	
 	.Max_Particles = 500
 	.ParticlesPerEmitte = 1
@@ -145,20 +146,20 @@ With part_SMOKE
 	.Life_TimeVar = 0.5
 End With
 
-Dim Shared part_LUEUR As Particle_Emitter
-part_LUEUR = Particle_Emitter(@tex_Particles, Rect(2*32, 2*32, 32, 32))
-With part_LUEUR
+Dim Shared part_BALLE As Particle_Emitter
+part_BALLE = Particle_Emitter(@tex_Particles, Rect(0*32, 1*32, 32, 32))
+With part_BALLE
 	'.Position = v2d(400,300)
-	.PositionVar = v2d(4, 4)
+	.PositionVar = v2d(0, 0)
 	
-	.Vel = 0
-	.VelVar = 0
+	.Vel = 8
+	.VelVar = 2
 	
 	.Accel = 0
 	.AccelVar = 0
 	
 	.Angle = 0
-	.AngleVar = 0
+	.AngleVar = 180
 	
 	.Force = 0
 	.ForceVar = 0
@@ -166,14 +167,14 @@ With part_LUEUR
 	.Force_AngleVar = 0
 	
 	.Spin = 0
-	.SpinVar = 360
+	.SpinVar = 1200
 	.SpinFlyVar = 0
 	
-	.Size = 32
-	.SizeVar = 0
-	.SizeFlyVar = -5
+	.Size = 4
+	.SizeVar = 2
+	.SizeFlyVar = -8
 	
-	.Clr.Set(64,192,64,128)
+	.Clr.Set(128,255,128,255)
 	.Clr.SetVar(0,0,0,0)
 	.FlyVar_R = 0
 	.FlyVar_G = 0
@@ -185,9 +186,10 @@ With part_LUEUR
 	.ParticlesPerEmitte = 1
 	.Emitte_Delay = 0.01
 	
-	.Life_Time = 3
-	.Life_TimeVar = 0
+	.Life_Time = 0.5
+	.Life_TimeVar = 0.1
 End With
+
 ''======================================================================
 
 Dim Shared spr_BK As Sprite
@@ -198,7 +200,7 @@ spr_BK.Size = v2d(1024,768)
 Dim Shared spr_Avion As Sprite
 spr_Avion = Sprite(@tex_AVION)
 With spr_Avion
-	.Size = v2d(64, 64)
+	.Size = v2d(48, 48)
 	.SetOrigin(O_MID)
 End With
 
@@ -207,13 +209,17 @@ With dyn_Avion
 	.Position = v2d(1024/2,768/2)
 	.VelMax = 300
 	.AngleVelMax = 180
-	.Innertie = 200
-	.AngleInnertie = 360
+	.Innertie = 150
+	.AngleInnertie = 300
 End With
 ''======================================================================
 
 Declare Sub KeyBoardCallback(ByVal key As Integer, ByVal action As Integer)
 glfwSetKeyCallback(@KeyBoardCallback)
+
+Dim Shared shot_array As Dyn_Array
+Declare Sub _Shot(ByVal tex As Texture Ptr, ByVal position As v2d, ByVal angle As Single)
+Declare Sub _Shot_Draw()
 
 Dim shoot_timer As Double = TimerInit()
 Dim vect As v2d
@@ -226,46 +232,92 @@ Do
 		part_SMOKE.Draw()
 		part_FLY.Draw()
 		part_SHOOT.Draw()
+		part_BALLE.Draw()
 		
-		'part_LUEUR.Draw()
+		_Shot_Draw()
+		
 		Dyn_Avion.Draw()
 	'''	
 	main.Draw_End()
 	
 	If TimerDiff(shoot_timer) >= 0.1 And glfwGetKey(GLFW_KEY_SPACE) = GLFW_PRESS Then
 		part_SHOOT.Angle = spr_AVION.angle
-		part_SHOOT.Position = spr_Avion.GetPoint(v2d(35,13))
+		
+		part_SHOOT.Position = spr_Avion.GetPoint(0.55,0.19)'v2d(0.55,13))
+		_Shot(@tex_BALLE, part_SHOOT.Position, part_SHOOT.Angle)
 		part_SHOOT.Spawn(10)
-		part_SHOOT.Position = spr_Avion.GetPoint(v2d(35,51))
+		
+		part_SHOOT.Position = spr_Avion.GetPoint(0.55,0.81)'v2d(0.55,51))
+		_Shot(@tex_BALLE, part_SHOOT.Position, part_SHOOT.Angle)
 		part_SHOOT.Spawn(10)
+		'''
 		shoot_timer = TimerInit()
 	EndIf
 	
 	If glfwGetKey(GLFW_KEY_UP) = GLFW_PRESS Then
 		part_FLY.Angle = spr_Avion.Angle + 180
-		part_FLY.Position = spr_Avion.GetPoint(v2d(-4,33))
-		part_SMOKE.Position = spr_Avion.GetPoint(v2d(-4,33))
-		part_LUEUR.Position = spr_Avion.GetPoint(v2d(-4,33))
-		'part_LUEUR.Position = spr_Avion.GetPoint(v2d(16,3))
+		part_FLY.Position = spr_Avion.GetPoint(-0.01, 0.5)'v2d(-4,33))
+		part_SMOKE.Position = spr_Avion.GetPoint(-0.01, 0.5)'v2d(-4,33))
 		part_FLY.actif = TRUE
 		part_SMOKE.actif = TRUE
-		part_LUEUR.actif = TRUE
 		'''
 		vect.FromAngle(Dyn_Avion.Angle, 1000)
 		Dyn_Avion.Accel = vect
 	ElseIf glfwGetKey(GLFW_KEY_UP) = GLFW_RELEASE Then
 		part_FLY.actif = FALSE
 		part_SMOKE.actif = FALSE
-		part_LUEUR.actif = FALSE
+		'''
 		Dyn_Avion.Accel = v2d0
 	EndIf
 	
 	main.SetCaption("Space Ship - FPS: " & main.GetFPS())
 	
-Loop' Until glfwGetKey(GLFW_KEY_ESC) = GLFW_PRESS
+Loop Until glfwGetKey(GLFW_KEY_ESC) = GLFW_PRESS
+
+For i As Integer = 0 To shot_array.UBound() - 1
+	Print "Delete " & i
+	Delete Cast(Dynamique Ptr, shot_array.Elem(i))->Spr
+	Delete Cast(Dynamique Ptr, shot_array.Elem(i))
+Next i
 
 ''======================================================================
 
+Sub _Shot(ByVal tex As Texture Ptr, ByVal position As v2d, ByVal angle As Single)
+	Dim spr As Sprite Ptr = New Sprite(tex)
+	spr->blendMode = BM_BLENDED
+	spr->SetOrigin(O_MID)
+	'''
+	Dim vect As v2d
+	Dim Dyn As Dynamique Ptr = New Dynamique(spr)
+	Dyn->Position = position
+	Dyn->Angle = angle
+		
+	vect.FromAngle(Random_Double(angle - 1,angle + 1), Random_Int(1150,1250))
+	Dyn->Vel = vect
+		
+	'Dyn->AngleVel = 1200
+
+	'''
+	shot_array.Add(Cast(Integer, Dyn))
+End Sub
+
+Sub _Shot_Draw()
+	Dim _ptr As Dynamique Ptr
+	Dim _spr As Dynamique Ptr
+	For i As Integer = shot_array.UBound() - 1 To 0 Step -1
+		_ptr = Cast(Dynamique Ptr, shot_array.Elem(i))
+		_ptr->Draw()
+		'''
+		part_BALLE.Position = _ptr->Position
+		part_BALLE.Spawn(1)
+		'''
+		If _ptr->Position.IsInRect(Rect(0,0,1024,768)) = FALSE Then
+			_spr = _ptr->spr
+			Delete _spr
+			shot_array.Del(i)
+		EndIf
+	Next i
+End Sub
 
 Sub KeyBoardCallback(ByVal key As Integer, ByVal action As Integer)
 	Dim vect As v2d

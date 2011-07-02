@@ -83,21 +83,24 @@ Namespace GLE
 			EndIf
 			
 			'; Innertie
-			If .Innertie <> 0 And .Vel.x <> 0 And .Accel.x = 0 Then '; Innertie X
+			Dim inner As v2d
+			inner.FromAngle(.Vel.Angle(), .Innertie)
+
+			If inner.x <> 0 And .Vel.x <> 0 And .Accel.x = 0 Then '; Innertie X
 				tmp = .Vel.x
 				If .Vel.x > 0 Then
-					.Vel.x -= Abs(.Innertie) * dt
+					.Vel.x -= Abs(inner.x) * dt
 				ElseIf .Vel.x < 0 Then
-					.Vel.x += Abs(.Innertie) * dt
+					.Vel.x += Abs(inner.x) * dt
 				EndIf
 				If .Vel.x / tmp < 0 Then .Vel.x = 0
 			EndIf
-			If .Innertie <> 0 And .Vel.y <> 0 And .Accel.y = 0 Then '; Innertie Y
+			If inner.y <> 0 And .Vel.y <> 0 And .Accel.y = 0 Then '; Innertie Y
 				tmp = .Vel.y
 				If .Vel.y > 0 Then
-					.Vel.y -= Abs(.Innertie) * dt
+					.Vel.y -= Abs(inner.y) * dt
 				ElseIf .Vel.y < 0 Then
-					.Vel.y += Abs(.Innertie) * dt
+					.Vel.y += Abs(inner.y) * dt
 				EndIf
 				If .Vel.y / tmp < 0 Then .Vel.y = 0
 			EndIf
