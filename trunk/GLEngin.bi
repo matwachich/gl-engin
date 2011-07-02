@@ -47,6 +47,13 @@ Namespace GLE
 	''===================================
 	'' Internal UDT
 	''===================================
+	Type Rect
+		Declare Constructor()
+		Declare Constructor(ByVal x As Single, ByVal y As Single, ByVal w As Single, ByVal h As Single)
+		Declare Operator Cast() As String
+		As Single x, y, w, h
+	End Type
+	
 	Type v2d
 		Declare Constructor()
 		Declare Constructor(ByVal x As Single, ByVal y As Single)
@@ -55,16 +62,10 @@ Namespace GLE
 		Declare Function ToVectDist(ByRef vect As v2d) As Single
 		Declare Function Grandeur() As Single
 		Declare Function Angle() As Single
+		Declare Function IsInRect(ByVal test As Rect) As BOOL
 		Declare Operator Cast() As String
 		
 		As Single x, y
-	End Type
-	
-	Type Rect
-		Declare Constructor()
-		Declare Constructor(ByVal x As Single, ByVal y As Single, ByVal w As Single, ByVal h As Single)
-		Declare Operator Cast() As String
-		As Single x, y, w, h
 	End Type
 	
 	Type T_Color
