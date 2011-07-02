@@ -128,21 +128,21 @@ With part_SMOKE
 	
 	.Size = 8
 	.SizeVar = 2
-	.SizeFlyVar = 0
+	.SizeFlyVar = 8
 	
 	.Clr.Set(128,128,128,192)
 	.Clr.SetVar(0,0,0,0)
 	.FlyVar_R = 0
 	.FlyVar_G = 0
 	.FlyVar_B = 0
-	.FlyVar_A = 0
+	.FlyVar_A = -64
 	.BlendMode = BM_TRANS
 	
 	.Max_Particles = 500
 	.ParticlesPerEmitte = 1
 	.Emitte_Delay = 0.01
 	
-	.Life_Time = 2
+	.Life_Time = 3
 	.Life_TimeVar = 0.5
 End With
 
