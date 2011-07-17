@@ -1,6 +1,8 @@
 
 Namespace GLE
 	
+	Constructor Dynamique()
+	End Constructor
 	Constructor Dynamique(ByVal spr As Sprite Ptr)
 		This.Position = spr->Position ' BUG: Doesn't work
 		This.Angle = spr->Angle
@@ -43,16 +45,16 @@ Namespace GLE
 			
 			' ### Application de la rotation ###
 			' --- Vitesse
-			If .AngleVel <> 0 Then
+			'If .AngleVel <> 0 Then
 				.Angle = .Angle + (.AngleVel * dt)
-			EndIf
+			'EndIf
 			' --- Accélération
-			If .AngleAccel <> 0 Then
+			'If .AngleAccel <> 0 Then
 				.AngleVel += .AngleAccel * dt
-			EndIf
+			'EndIf
 			' --- Innertie
 			Dim tmp As Single = .AngleVel
-			If .AngleInnertie <> 0 And .AngleVel <> 0 Then
+			If .AngleInnertie <> 0 And .AngleVel <> 0 And .AngleAccel = 0 Then
 				If .AngleVel > 0 Then
 					.AngleVel -= Abs(.AngleInnertie) * dt
 				ElseIf .AngleVel < 0 Then
@@ -63,24 +65,33 @@ Namespace GLE
 			
 			'; ##############################################################
 			
-			'; Accélération
-			.Vel.x += .Accel.x * dt
-			.Vel.y += .Accel.y * dt
-			Dim vitGrand As Single = .Vel.Grandeur()
+			Dim vitGrand As Single = .Vel.Len()
 			Dim vitAngle As Single = .Vel.Angle()
 			
 			'; Vitesse Maximum
-			If .VelMax <> 0 And vitGrand > .VelMax Then
+			If .VelMax <> 0 And vitGrand >= .VelMax Then
 				.Vel.FromAngle(vitAngle, .VelMax)
+				'''
+				'Dim force As v2d
+				'force.FromAngle(vitAngle, 10 * (vitGrand / .VelMax) * (.VelMax - vitGrand))
+				'''
+				'Locate 3, 1: Print Using "#### , ####"; force.x; force.y
+				'.Vel.x += force.x * dt
+				'.Vel.y += force.y * dt
+				'''
 			EndIf
 			
+			'Locate 4, 1: Print Using "#####          "; .Vel.Len()
+			
+			'; Accélération
+			'.Vel.x += .Accel.x * dt
+			'.Vel.y += .Accel.y * dt
+			.Vel = .Vel + (.Accel * dt)
+			
 			'; Position
-			If .Vel.x <> 0 Then
-				.Position.x += .Vel.x * dt
-			EndIf
-			If .Vel.y <> 0 Then
-				.Position.y += .Vel.y * dt
-			EndIf
+			'.Position.x += .Vel.x * dt
+			'.Position.y += .Vel.y * dt
+			.Position = .Position + (.Vel * dt)
 			
 			'; Innertie
 			Dim inner As v2d

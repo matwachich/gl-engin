@@ -5,13 +5,13 @@
 	
 Namespace GLE
 	
-	' Default Constructor: (0,0)
+	' Default Constructor (0,0)
 	Constructor v2d()
 		This.x = 0
 		This.y = 0
 	End Constructor
 	
-	' Constructor: (x,y)
+	' Constructor (x,y)
 	Constructor v2d(ByVal x As Single, ByVal y As Single)
 		This.x = x
 		This.y = y
@@ -20,6 +20,11 @@ Namespace GLE
 	
 	' 
 	Sub v2d.FromAngle(ByVal degrees As Single, ByVal lenght As Single)
+		If lenght = 0 Then
+			This.x = 0
+			This.y = 0
+			Return
+		EndIf
 		'If degrees >= 360 Then degrees = _ReduceAngle(degrees) ' called in _DegToRad
 		Select Case degrees
 			Case 0
@@ -46,7 +51,7 @@ Namespace GLE
 	End Sub
 	
 	' 
-	Function v2d.ToVectAngle(ByRef vect As v2d) As Single
+	Function v2d.ToVect_Angle(ByRef vect As v2d) As Single
 		If This.x = vect.x And This.y = vect.y Then Return 0
 
 		Dim As Single difX = vect.x - This.x
@@ -60,15 +65,16 @@ Namespace GLE
 	End Function
 	
 	' 
-	Function v2d.ToVectDist(ByRef vect As v2d) As Single
+	Function v2d.ToVect_Len(ByRef vect As v2d) As Single
 		Return Sqr(((This.x - vect.x)*(This.x - vect.x)) + ((This.y - vect.y)*(This.y - vect.y)))
 	End Function
 	
-	Function v2d.Grandeur() As Single
+	Function v2d.Len() As Single
 		Return Sqr((This.x * This.x) + (This.y * This.y))
 	End Function
 	
 	Function v2d.Angle() As Single
+		If This.x = 0 And This.y = 0 Then Return 0
 		Dim As Single tmp = Abs(Atn(This.y / This.x))
 
 		If This.x < 0 Then tmp = _PI - tmp
@@ -105,6 +111,15 @@ Namespace GLE
 	End Operator
 	Operator *(ByVal nbr As Single, ByRef vect As v2d) As v2d
 		Return Type(vect.x * nbr, vect.y * nbr)
+	End Operator
+	
+	Operator /(ByVal v1 As v2d, ByVal v2 As v2d) As v2d
+		Return Type(v1.x / v2.x, v1.y / v2.y)
+	End Operator
+	Operator /(ByVal vect As v2d, ByVal nbr As Single) As v2d
+		Dim ratio As v2d
+		ratio.FromAngle(vect.Angle(), nbr)
+		Return vect / ratio
 	End Operator
 	
 	Operator =(ByRef _1 As v2d, ByRef _2 As v2d) As BOOL

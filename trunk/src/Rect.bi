@@ -15,7 +15,7 @@ Namespace GLE
 	End Constructor
 	
 	Constructor Rect(ByVal x As Single, ByVal y As Single, ByVal w As Single, ByVal h As Single)
-	With This
+		With This
 			.x = x
 			.y = y
 			.w = w
@@ -24,7 +24,7 @@ Namespace GLE
 	End Constructor
 	
 	Operator Rect.Cast() As String
-		Return This.x & " , " & This.y & " , " & This.w & " , " & This.h
+		Return "(" & This.x & " , " & This.y & " - " & This.w & " , " & This.h & ")"
 	End Operator
 	
 End Namespace

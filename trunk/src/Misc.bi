@@ -1,16 +1,8 @@
 
 Namespace GLE
 	
-	''===================================
-	'' Misc Functions
-	''===================================
-	''' Random Numbers
-	Declare Function Random_Int(first As Integer, last As Integer) As Integer
-	Declare Function Random_Double(first As Double, last As Double) As Double
-	''' Timers
-	Declare Function TimerInit() As Double
-	Declare Function TimerDiff(ByVal TimeStamp As Double) As Double
 	' Internals
+	Declare Sub _StringSplit(ByVal s_in As String, ByVal char As String, result() As String) ' By dodicat
 	Declare Sub _SetBlendMode(ByVal mode As E_BLEND_MODE = BM_TRANS)
 	Declare Function _ReduceAngle(ByVal iAngle As Single) As Single
 	Declare Function _RadToDeg(ByVal rad As Single) As Single
@@ -141,5 +133,28 @@ Namespace GLE
 	Function TimerDiff(ByVal TimeStamp As Double) As Double
 		Return Timer - TimeStamp
 	End Function
+	''===================================================================================================
+	
+	
+	Sub _StringSplit(ByVal s_in As String, ByVal char As String, result() As String)
+	    Dim As String s = s_in, var1, var2
+		Dim As Long n, pst
+	    #Macro split(stri, char, var1, var2)
+		    pst = InStr(stri, char)
+		    var1 = "": var2 = ""
+		    If pst <> 0 Then
+			    var1 = Mid(stri, 1, pst - 1)
+			    var2 = Mid(stri, pst + 1)
+			Else
+			    var1 = stri
+		    EndIf
+			ReDim Preserve result(1 To 1 + n - ((Len(var1) > 0) + (Len(var2) > 0)))
+			result(n + 1) = var1
+	    #endmacro
+		Do
+			split(s, char, var1, var2): n = n + 1: s = var2
+		Loop Until var2 = ""
+		ReDim Preserve result(1 To Ubound(result) - 1)
+	End Sub
 	
 End Namespace

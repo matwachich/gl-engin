@@ -9,7 +9,6 @@ Namespace GLE
 		This.glTexture = 0
 		This.w = 0
 		This.h = 0
-		'This.bpp = 0
 	End Constructor
 	
 	' Simply load a Texture
@@ -25,6 +24,10 @@ Namespace GLE
 			This.w = 0
 			This.h = 0
 		Else
+			glBindTexture(GL_TEXTURE_2D, tex)
+    		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+    		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+			'''
 			This.glTexture = tex
 			This.w = w
 			This.h = h
@@ -44,6 +47,9 @@ Namespace GLE
 			This.w = 0
 			This.h = 0
 		Else
+			glBindTexture(GL_TEXTURE_2D, tex)
+    		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+    		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
 			This.glTexture = tex
 			This.w = w
 			This.h = h

@@ -95,33 +95,197 @@ Namespace GLE
 	''=========================================================================================
 	''=========================================================================================
 	
-	Constructor Particle_Emitter()
+	Constructor Particle_Emitter_Cfg()
+	End Constructor
+	
+	Constructor Particle_Emitter_Cfg(ByVal file_name As String, ByVal section_name As String)
+		This.LoadConfig(file_name, section_name)
+	End Constructor
+	
+	Function Particle_Emitter_Cfg.LoadConfig(ByVal file_name As String, ByVal section_name As String) As BOOL
+		Print ""
+		Print "Loading config: " & file_name & " - Section: " & section_name
+		Dim file As inifobj.iniobj = inifobj.iniobj(file_name)
+		If file.InitStatus = FALSE Then Return FALSE
+		'''
+		Dim dummy As Integer
+		If file.SectionExists(section_name, dummy) = FALSE Then Return FALSE
+		'''
+		#Macro _read_(_value, _default)
+			Val(file.ReadString(section_name, _value, _default))
+		#EndMacro
+		''
+		Dim tmp_str As String
+		ReDim array() As String
+		''
+		With This
+			'' Position Var
+			tmp_str = file.ReadString(section_name, "positionVar", "0,0")
+			_StringSplit(tmp_str, ",", array())
+			If UBound(array) = 2 Then
+				.PositionVar = v2d(ValInt(array(1)), ValInt(array(2)))
+			Else
+				.PositionVar = v2d(0, 0)
+			EndIf
+			Print "PosVar: " & .PositionVar
+			'' Vel
+			.vel = _read_("vel", "0")
+			.velVar = _read_("velVar", "0")
+			Print "Vel: " & .vel & " - (" & .velVar & ")"
+			'' ==============
+			'' Accel
+			.accel = _read_("accel", "0")
+			.accelVar = _read_("accelVar", "0")
+			Print "Accel: " & .accel & " - (" & .accelVar & ")"
+			'' ==============
+			'' Angle
+			.angle = _read_("angle", "0")
+			.angleVar = _read_("angleVar", "180")
+			Print "Angle: " & .angle & " - (" & .angleVar & ")"
+			'' ==============
+			'' Force
+			.force = _read_("force", "0")
+			.forceVar = _read_("forceVar", "0")
+			Print "Force: " & .force & " - (" & .forceVar & ")"
+			.force_angle = _read_("force_angle", "0")
+			.force_angleVar = _read_("force_angleVar", "0")
+			Print "Force Angle: " & .force_angle & " - (" & .force_angleVar & ")"
+			'' ==============
+			'' Spin
+			.spin = _read_("spin", "0")
+			.spinVar = _read_("spinVar", "0")
+			.spinFlyVar = _read_("spinFlyVar", "0")
+			Print "Spin: " & .spin & " - (" & .spinVar & ") - (" & .spinFlyVar & ")"
+			'' ==============
+			'' Life time
+			.life_time = _read_("life_time", "1")
+			.life_timeVar = _read_("life_timeVar", "0")
+			Print "Life: " & .life_time & " - (" & .life_timeVar & ")"
+			'' ==============
+			'' Size
+			.size = _read_("size", "8")
+			.sizeVar = _read_("sizeVar", "0")
+			.sizeFlyVar = _read_("sizeFlyVar", "0")
+			Print "Size: " & .size & " - (" & .sizeVar & ") - (" & .sizeFlyVar & ")"
+			'' ==============
+			'' Emitte
+			.emitte_delay = _read_("emitte_delay", "0.01")
+			Print "Emitte Delay: " & .emitte_delay
+			.particlesPerEmitte = _read_("particlesPerEmitte", "1")
+			Print "Parts Per Emitte: " & .particlesPerEmitte
+			'' ==============
+			'' Max Particles
+			.max_particles = _read_("max_particles", "200")
+			Print "Max Parts: " & .max_particles
+			'' ==============
+			'' Colors
+			tmp_str = file.ReadString(section_name, "color", "255,255,255,255")
+			_StringSplit(tmp_str, ",", array())
+			If UBound(array) = 4 Then
+				.clr.Set(CInt(array(1)), CInt(array(2)), CInt(array(3)), CInt(array(4)))
+			Else
+				.Clr.Set(255,255,255,192)
+			EndIf
+			Print "Color: " & .Clr.r & "," & .Clr.g & "," & .Clr.b & "," & .Clr.a
+			'' ==============
+			'' Color var
+			tmp_str = file.ReadString(section_name, "colorVar", "0,0,0,0")
+			_StringSplit(tmp_str, ",", array())
+			If UBound(array) = 4 Then
+				.clr.SetVar(CInt(array(1)), CInt(array(2)), CInt(array(3)), CInt(array(4)))
+			Else
+				.Clr.SetVar(0,0,0,0)
+			EndIf
+			Print "ColorVar: " & .Clr.rVar & "," & .Clr.gVar & "," & .Clr.bVar & "," & .Clr.aVar
+			'' ==============
+			'' Color fly Var
+			tmp_str = file.ReadString(section_name, "colorFlyVar", "0,0,0,0")
+			_StringSplit(tmp_str, ",", array())
+			If UBound(array) = 4 Then
+				.FlyVar_R = CInt(array(1))
+				.FlyVar_G = CInt(array(2))
+				.FlyVar_B = CInt(array(3))
+				.FlyVar_A = CInt(array(4))
+			Else
+				.FlyVar_R = 0
+				.FlyVar_G = 0
+				.FlyVar_B = 0
+				.FlyVar_A = 0
+			EndIf
+			Print "ColorFlyVar: " & .FlyVar_R & "," & .FlyVar_G & "," & .FlyVar_B & "," & .FlyVar_A
+			'' ==============
+			'' Blend mode
+			tmp_str = file.ReadString(section_name, "BlendMode", "BM_TRANS")
+			Select Case tmp_str
+				Case "BM_TRANS"
+					.blendMode = BM_TRANS
+				Case "BM_SOLID"
+					.blendMode = BM_SOLID
+				Case "BM_BLENDED"
+					.blendMode = BM_BLENDED
+				Case "BM_GLOW"
+					.blendMode = BM_GLOW
+				Case "BM_BLACK"
+					.blendMode = BM_BLACK
+				Case Else
+					.blendMode = BM_TRANS
+			End Select
+			'' ==============
+		End With
+	End Function
+	
+	''=========================================================================================
+	''=========================================================================================
+	
+	/'	
+	#Macro _P_Emitter_Constructor(tex, rect, cfg)
 		For i As Short = 0 To _MAX_PARTICLES_
 			This.array(i) = 0
 		Next i
 		'''
-		This.texRect = Rect(0, 0, 1, 1)
+		If tex <> 0 Then This.tex = tex
+		'''
+		This.SetTextureRect(rect)
+		'''
+		If cfg <> 0 Then This.SetConfig(cfg)
+		'''
+		This.emitte_timer = TimerInit()
+	#EndMacro
+	'/
+	
+	Constructor Particle_Emitter()
+		This.__Constructor(0, Rect(0, 0, 0, 0), 0)
 	End Constructor
 	
 	Constructor Particle_Emitter(ByVal tex As Texture Ptr)
-		This.tex = tex
-		For i As Short = 0 To _MAX_PARTICLES_
-			This.array(i) = 0
-		Next i
-		This.texRect = Rect(0, 0, 1, 1)
-		''' à ajouter dans une fonction toggleActif
-		This.emitte_timer = TimerInit()
+		This.__Constructor(tex, Rect(0, 0, 0, 0), 0)
 	End Constructor
 	
 	Constructor Particle_Emitter(ByVal tex As Texture Ptr, ByVal texRect As Rect)
-		This.tex = tex
+		This.__Constructor(tex, texRect, 0)
+	End Constructor
+	
+	Constructor Particle_Emitter(ByVal tex As Texture Ptr, ByVal cfg_ptr As Particle_Emitter_Cfg Ptr)
+		This.__Constructor(tex, Rect(0, 0, 0, 0), cfg_ptr)
+	End Constructor
+	
+	Constructor Particle_Emitter(ByVal tex As Texture Ptr, ByVal texRect As Rect, ByVal cfg_ptr As Particle_Emitter_Cfg Ptr)
+		This.__Constructor(tex, texRect, cfg_ptr)
+	End Constructor
+	
+	Sub Particle_Emitter.__Constructor(ByVal tex As Texture Ptr, ByVal texRect As Rect, ByVal cfg_ptr As Particle_Emitter_Cfg Ptr)
 		For i As Short = 0 To _MAX_PARTICLES_
 			This.array(i) = 0
 		Next i
+		'''
+		If tex <> 0 Then This.tex = tex
+		'''
 		This.SetTextureRect(texRect)
-		''' à ajouter dans une fonction toggleActif
+		'''
+		If cfg_ptr <> 0 Then This.SetConfig(cfg_ptr)
+		'''
 		This.emitte_timer = TimerInit()
-	End Constructor
+	End Sub
 	
 	Sub Particle_Emitter.SetTextureRect(ByVal texRect As Rect)
 		If This.tex = 0 Then
@@ -131,6 +295,55 @@ Namespace GLE
 		This.texRect = Rect(texRect.x / This.tex->w, texRect.y / This.tex->h, texRect.w / This.tex->w, texRect.h / This.tex->h)
 		''' à ajouter dans une fonction toggleActif
 		This.emitte_timer = TimerInit()
+	End Sub
+	
+	Sub Particle_Emitter.SetConfig(ByVal parts_cfg As Particle_Emitter_Cfg Ptr)
+		With This
+			.PositionVar = parts_cfg->PositionVar
+			
+			.vel = parts_cfg->vel
+			.velVar = parts_cfg->velVar
+			.accel = parts_cfg->accel
+			.accelVar = parts_cfg->accelVar
+			.angle = parts_cfg->angle
+			.angleVar = parts_cfg->angleVar
+			
+			.force = parts_cfg->force
+			.forceVar = parts_cfg->forceVar
+			.force_angle = parts_cfg->force_angle
+			.force_angleVar = parts_cfg->force_angleVar
+			
+			.spin = parts_cfg->spin
+			.spinVar = parts_cfg->spinVar
+			.spinFlyVar = parts_cfg->spinFlyVar
+			
+			.life_time = parts_cfg->life_time
+			.life_timeVar = parts_cfg->life_timeVar
+			
+			.size = parts_cfg->size
+			.sizeVar = parts_cfg->sizeVar
+			.sizeFlyVar = parts_cfg->sizeFlyVar
+			
+			.emitte_delay = parts_cfg->emitte_delay
+			.particlesPerEmitte = parts_cfg->particlesPerEmitte
+			
+			.max_particles = parts_cfg->max_particles
+			
+			.clr.r = parts_cfg->clr.r
+			.clr.g = parts_cfg->clr.g
+			.clr.b = parts_cfg->clr.b
+			.clr.a = parts_cfg->clr.a
+			.clr.rVar = parts_cfg->clr.rVar
+			.clr.gVar = parts_cfg->clr.gVar
+			.clr.bVar = parts_cfg->clr.bVar
+			.clr.aVar = parts_cfg->clr.aVar
+			.flyVar_R = parts_cfg->flyVar_R
+			.flyVar_G = parts_cfg->flyVar_G
+			.flyVar_B = parts_cfg->flyVar_B
+			.flyVar_A = parts_cfg->flyVar_A
+			
+			.BlendMode = parts_cfg->BlendMode
+		End With
 	End Sub
 	
 	Sub Particle_Emitter.Spawn()
@@ -161,7 +374,7 @@ Namespace GLE
 		'''
 		_SetBlendMode(This.blendMode)
 		'''
-		If This.tex = 0 Then
+		If This.tex = 0 Then ' If no texture Ptr in the emitter, then binds the default glow texture
 			__GLOW_Texture.Activate()
 		Else
 			This.tex->Activate()
@@ -182,6 +395,144 @@ Namespace GLE
 		'''
 	End Sub
 	
+	Function Particle_Emitter.LoadConfig(ByVal file_name As String, ByVal section_name As String) As BOOL
+		Print ""
+		Print "Loading config: " & file_name & " - Section: " & section_name
+		Dim file As inifobj.iniobj = inifobj.iniobj(file_name)
+		If file.InitStatus = FALSE Then
+			Print "Error: Ini Status"
+			Return FALSE
+		EndIf
+		'''
+		Dim dummy As Integer
+		If file.SectionExists(section_name, dummy) = FALSE Then
+			Print "Error: No such section name"
+			Return FALSE
+		EndIf
+		'''
+		#Macro _read_(_value, _default)
+			Val(file.ReadString(section_name, _value, _default))
+		#EndMacro
+		''
+		Dim tmp_str As String
+		ReDim array() As String
+		''
+		With This
+			'' Position Var
+			tmp_str = file.ReadString(section_name, "positionVar", "0,0")
+			_StringSplit(tmp_str, ",", array())
+			If UBound(array) = 2 Then
+				.PositionVar = v2d(ValInt(array(1)), ValInt(array(2)))
+			Else
+				.PositionVar = v2d(0, 0)
+			EndIf
+			Print "PosVar: " & .PositionVar
+			'' Vel
+			.vel = _read_("vel", "0")
+			.velVar = _read_("velVar", "0")
+			Print "Vel: " & .vel & " - (" & .velVar & ")"
+			'' ==============
+			'' Accel
+			.accel = _read_("accel", "0")
+			.accelVar = _read_("accelVar", "0")
+			Print "Accel: " & .accel & " - (" & .accelVar & ")"
+			'' ==============
+			'' Angle
+			.angle = _read_("angle", "0")
+			.angleVar = _read_("angleVar", "180")
+			Print "Angle: " & .angle & " - (" & .angleVar & ")"
+			'' ==============
+			'' Force
+			.force = _read_("force", "0")
+			.forceVar = _read_("forceVar", "0")
+			Print "Force: " & .force & " - (" & .forceVar & ")"
+			.force_angle = _read_("force_angle", "0")
+			.force_angleVar = _read_("force_angleVar", "0")
+			Print "Force Angle: " & .force_angle & " - (" & .force_angleVar & ")"
+			'' ==============
+			'' Spin
+			.spin = _read_("spin", "0")
+			.spinVar = _read_("spinVar", "0")
+			.spinFlyVar = _read_("spinFlyVar", "0")
+			Print "Spin: " & .spin & " - (" & .spinVar & ") - (" & .spinFlyVar & ")"
+			'' ==============
+			'' Life time
+			.life_time = _read_("life_time", "1")
+			.life_timeVar = _read_("life_timeVar", "0")
+			Print "Life: " & .life_time & " - (" & .life_timeVar & ")"
+			'' ==============
+			'' Size
+			.size = _read_("size", "8")
+			.sizeVar = _read_("sizeVar", "0")
+			.sizeFlyVar = _read_("sizeFlyVar", "0")
+			Print "Size: " & .size & " - (" & .sizeVar & ") - (" & .sizeFlyVar & ")"
+			'' ==============
+			'' Emitte
+			.emitte_delay = _read_("emitte_delay", "0.01")
+			Print "Emitte Delay: " & .emitte_delay
+			.particlesPerEmitte = _read_("particlesPerEmitte", "1")
+			Print "Parts Per Emitte: " & .particlesPerEmitte
+			'' ==============
+			'' Max Particles
+			.max_particles = _read_("max_particles", "200")
+			Print "Max Parts: " & .max_particles
+			'' ==============
+			'' Colors
+			tmp_str = file.ReadString(section_name, "color", "255,255,255,255")
+			_StringSplit(tmp_str, ",", array())
+			If UBound(array) = 4 Then
+				.clr.Set(CInt(array(1)), CInt(array(2)), CInt(array(3)), CInt(array(4)))
+			Else
+				.Clr.Set(255,255,255,192)
+			EndIf
+			Print "Color: " & .Clr.r & "," & .Clr.g & "," & .Clr.b & "," & .Clr.a
+			'' ==============
+			'' Color var
+			tmp_str = file.ReadString(section_name, "colorVar", "0,0,0,0")
+			_StringSplit(tmp_str, ",", array())
+			If UBound(array) = 4 Then
+				.clr.SetVar(CInt(array(1)), CInt(array(2)), CInt(array(3)), CInt(array(4)))
+			Else
+				.Clr.SetVar(0,0,0,0)
+			EndIf
+			Print "ColorVar: " & .Clr.rVar & "," & .Clr.gVar & "," & .Clr.bVar & "," & .Clr.aVar
+			'' ==============
+			'' Color fly Var
+			tmp_str = file.ReadString(section_name, "colorFlyVar", "0,0,0,0")
+			_StringSplit(tmp_str, ",", array())
+			If UBound(array) = 4 Then
+				.FlyVar_R = CInt(array(1))
+				.FlyVar_G = CInt(array(2))
+				.FlyVar_B = CInt(array(3))
+				.FlyVar_A = CInt(array(4))
+			Else
+				.FlyVar_R = 0
+				.FlyVar_G = 0
+				.FlyVar_B = 0
+				.FlyVar_A = 0
+			EndIf
+			Print "ColorFlyVar: " & .FlyVar_R & "," & .FlyVar_G & "," & .FlyVar_B & "," & .FlyVar_A
+			'' ==============
+			'' Blend mode
+			tmp_str = file.ReadString(section_name, "BlendMode", "BM_TRANS")
+			Select Case tmp_str
+				Case "BM_TRANS"
+					.blendMode = BM_TRANS
+				Case "BM_SOLID"
+					.blendMode = BM_SOLID
+				Case "BM_BLENDED"
+					.blendMode = BM_BLENDED
+				Case "BM_GLOW"
+					.blendMode = BM_GLOW
+				Case "BM_BLACK"
+					.blendMode = BM_BLACK
+				Case Else
+					.blendMode = BM_TRANS
+			End Select
+			'' ==============
+		End With
+	End Function
+	
 	Sub Particle_Emitter.__AddParticle()
 		If This.actif = 0 Then Return
 		If This._nbr_particles >= This.max_particles Then Return
@@ -199,6 +550,9 @@ Namespace GLE
 			''' Position
 			_ptr_->Position.x = .__SpecialRandom_Int(.Position.x, .PositionVar.x)
 			_ptr_->Position.y = .__SpecialRandom_Int(.Position.y, .PositionVar.y)
+			
+			''' Texture Rect
+			_ptr_->texRect = .texRect
 			
 			''' Velocity, Acceleration
 			vector.FromAngle(_ANGLE_, .__SpecialRandom_Float(.Vel, .VelVar))
@@ -229,9 +583,6 @@ Namespace GLE
 			_ptr_->var_B = .flyVar_B
 			_ptr_->var_A = .flyVar_A
 			
-			''' Texture Rect
-			_ptr_->texRect = .texRect
-			
 			''' Life Time
 			_ptr_->life_time = .__SpecialRandom_Float(.life_time, .life_timeVar)
 			
@@ -252,18 +603,12 @@ Namespace GLE
 	Function Particle_Emitter.__GetAngle() As Single
 		If This.AngleVar = 0 Then Return This.Angle
 		'''
-		Dim As Double min, max
+		Dim As Single min, max
 		min = This.Angle - This.AngleVar
 		max = This.Angle + This.AngleVar
-		Dim iAngle As Short
-		iAngle = Int((Rnd * (max - min)) + min)
-		If iAngle < 0 Then
-			iAngle = 360 - (Abs(iAngle) - 360)
-		EndIf
-		Do While iAngle >= 360
-			iAngle -= 360
-		Loop
-		Return iAngle
+		Dim iAngle As Single = Random_Double(min, max)
+		
+		Return _ReduceAngle(iAngle)
 	End Function
 	
 	Function Particle_Emitter.__SpecialRandom_Int(ByVal value As Short, ByVal variation As Short) As Short
