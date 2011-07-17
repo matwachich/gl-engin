@@ -5,6 +5,9 @@
 
 Namespace GLE
 	
+	Constructor Display()
+	End Constructor
+	
 	' Screen Width, Screen Height
 	' FullScreen Mode (True/False), Window Title (If Window mode)
 	' Vertical Sync (Tru/False)
@@ -12,8 +15,7 @@ Namespace GLE
 	Constructor Display(ByVal scrW As Short, ByVal scrH As Short, _
 						ByVal fullScreen As BOOL, ByVal winTitle As String, _
 						ByVal v_sync As BOOL, _
-						ByVal DepthBits As UShort, ByVal StencilBits As UShort, _
-						ByVal ExitOnWinClose As BOOL)
+						ByVal DepthBits As UShort, ByVal StencilBits As UShort)
 		Randomize Timer
 		'''
 		glfwInit()
@@ -22,15 +24,18 @@ Namespace GLE
 		If FullScreen = TRUE Then flag = GLFW_FULLSCREEN
 		'''
 		glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, TRUE)
-		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2)
-		glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0)
+		
+		' I thought i need it for GL_POINT_SPRITE but finally, i don't use them.
+		'glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2)
+		'glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 0)
 		'''
 		glfwOpenWindow(scrW, scrH, 8, 8, 8, 8, DepthBits, StencilBits, flag)
 		This._CenterWindow()
 		glfwSetWindowTitle(WinTitle)
 		'''
 		If v_sync = TRUE Then glfwSwapInterval(1)
-		If ExitOnWinClose = TRUE Then glfwSetWindowCloseCallback(Cast(GLFWWindowCloseFun, @__OnWindowClose))
+		'''
+		glfwSetWindowCloseCallback(Cast(GLFWWindowCloseFun, @__OnWindowClose))
 		'''
 		This._InitOpenGL(scrW, scrH)
 		'''
@@ -44,12 +49,17 @@ Namespace GLE
 		This.StencilBits = StencilBits
 		'''
 		__GLOW_Texture = Texture("glow.png")
+		'__GLOW_Texture.Activate()
+    	'glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+    	'glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
 	End Constructor
 	
 	' Destructor
 	Destructor Display()
+		'''
 		glfwCloseWindow()
 		glfwTerminate()
+		'''
 	End Destructor
 	''===================================================================================================
 	
@@ -71,7 +81,7 @@ Namespace GLE
 
 	
 	' Get a Random position (v2d) within the window
-	Function Display.RndPos(ByVal min_x As Short, ByVal max_x As Short, ByVal min_y As Short, ByVal max_y As Short) As v2d
+	Function Display.RandomPosition(ByVal min_x As Short, ByVal max_x As Short, ByVal min_y As Short, ByVal max_y As Short) As v2d
 		If max_x = 0 Then
 			max_x = This.scrW
 		ElseIf max_x < 0 Then
@@ -86,6 +96,21 @@ Namespace GLE
 		ret.x = Random_Int(min_x, max_x)
 		ret.y = Random_Int(min_y, max_y)
 		Return ret
+	End Function
+	''===================================================================================================
+	
+	'
+	Sub Display.SetViewPoint(ByVal view_point As v2d)
+		glTranslated(-1 * (view_point.x - This.view_point.x), -1 * (view_point.y - This.view_point.y), 0)
+		This.view_point = view_point
+	End Sub
+	
+	'
+	Function Display.ScreenPosition(ByVal position As v2d) As v2d
+		Return v2d(position.x + This.view_point.x, position.y + This.view_point.y)
+	End Function
+	Function Display.ScreenPosition(ByVal position As Rect) As Rect
+		Return Rect(position.x + This.view_point.x, position.y + This.view_point.y, position.w, position.h)
 	End Function
 	''===================================================================================================
 	
@@ -264,7 +289,7 @@ Namespace GLE
 	'' Externals
 	''===================================================================================================
 	Sub __OnWindowClose()
-		End 0
+		_Runing_ = FALSE 
 	End Sub
 	
 End Namespace

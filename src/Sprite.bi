@@ -32,14 +32,13 @@ Namespace GLE
 		'''
 		glEnable(GL_TEXTURE_2D)
 		This.tex->Activate()
-
 		'''
 		_SetBlendMode(This.blendMode)
 		glPushMatrix()
 		'''
 		glTranslated(This.Position.x, This.Position.y, 0)
 		glRotated(This.PRIVATE_Angle, 0, 0, 1)
-		glColor4ubv(cast(GLUbyte ptr, @This.Color))
+		glColor4ubv(Cast(GLUbyte ptr, @This.Color))
 		glBegin(GL_TRIANGLE_FAN)
 			
 			glTexCoord2d(This.texRect.x, This.texRect.y)
@@ -200,7 +199,7 @@ Namespace GLE
 	End Sub
 	
 	Function Sprite.Animate(ByVal anim As Animation Ptr) As BOOL
-		Return This.Animate(anim, 0)
+		Return This.Animate(anim, 0) ' stop_frame will not be checked because frame nbr 0 doesn't exists! :p
 	End Function
 	
 	Function Sprite.Animate(ByVal anim As Animation Ptr, ByVal stop_frame As Short) As BOOL

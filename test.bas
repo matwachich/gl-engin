@@ -1,7 +1,7 @@
 #Include "GLEngin.bi"
 Using GLE
 
-Dim root As Display = Display(800, 600, FALSE, "Matwachich!", 1, 0, 0, 1)
+Dim root As Display = Display(800, 600, FALSE, "Matwachich!", 1, 0, 0)
 	root.SetBKColor(128,128,64,0)
 	
 Dim tex As Texture = Texture("res\test.png")
