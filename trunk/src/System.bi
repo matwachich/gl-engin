@@ -199,7 +199,7 @@ Namespace GLE
 		zfar = 500                                      'far clip 
 		
 		'use glu Perspective to set our 3d frustum dimension up 
-		gluPerspective(FOVy, aspect, znear, zfar) 
+		gluPerspective(FOVy * 0.5, aspect, znear, zfar) 
 		
 		'Modelview mode 
 		'ie. Matrix that does things to anything we draw 

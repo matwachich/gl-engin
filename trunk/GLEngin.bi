@@ -757,3 +757,4 @@ End Namespace
 #Include "src/animation.bi"
 #Include "src/Particle.bi"
 #Include "src/Parallax.bi"
+#Include "src/Font.bi"
