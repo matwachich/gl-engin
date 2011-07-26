@@ -1,4 +1,6 @@
 
+'File: Particle
+
 Namespace GLE
 	
 	Constructor Particle()
@@ -127,40 +129,40 @@ Namespace GLE
 			Else
 				.PositionVar = v2d(0, 0)
 			EndIf
-			Print "PosVar: " & .PositionVar
+			'Print "PosVar: " & .PositionVar
 			'' Vel
 			.vel = _read_("vel", "0")
 			.velVar = _read_("velVar", "0")
-			Print "Vel: " & .vel & " - (" & .velVar & ")"
+			'Print "Vel: " & .vel & " - (" & .velVar & ")"
 			'' ==============
 			'' Accel
 			.accel = _read_("accel", "0")
 			.accelVar = _read_("accelVar", "0")
-			Print "Accel: " & .accel & " - (" & .accelVar & ")"
+			'Print "Accel: " & .accel & " - (" & .accelVar & ")"
 			'' ==============
 			'' Angle
 			.angle = _read_("angle", "0")
 			.angleVar = _read_("angleVar", "180")
-			Print "Angle: " & .angle & " - (" & .angleVar & ")"
+			'Print "Angle: " & .angle & " - (" & .angleVar & ")"
 			'' ==============
 			'' Force
 			.force = _read_("force", "0")
 			.forceVar = _read_("forceVar", "0")
-			Print "Force: " & .force & " - (" & .forceVar & ")"
+			'Print "Force: " & .force & " - (" & .forceVar & ")"
 			.force_angle = _read_("force_angle", "0")
 			.force_angleVar = _read_("force_angleVar", "0")
-			Print "Force Angle: " & .force_angle & " - (" & .force_angleVar & ")"
+			'Print "Force Angle: " & .force_angle & " - (" & .force_angleVar & ")"
 			'' ==============
 			'' Spin
 			.spin = _read_("spin", "0")
 			.spinVar = _read_("spinVar", "0")
 			.spinFlyVar = _read_("spinFlyVar", "0")
-			Print "Spin: " & .spin & " - (" & .spinVar & ") - (" & .spinFlyVar & ")"
+			'Print "Spin: " & .spin & " - (" & .spinVar & ") - (" & .spinFlyVar & ")"
 			'' ==============
 			'' Life time
 			.life_time = _read_("life_time", "1")
 			.life_timeVar = _read_("life_timeVar", "0")
-			Print "Life: " & .life_time & " - (" & .life_timeVar & ")"
+			'Print "Life: " & .life_time & " - (" & .life_timeVar & ")"
 			'' ==============
 			'' Size
 			.size = _read_("size", "8")
@@ -170,13 +172,13 @@ Namespace GLE
 			'' ==============
 			'' Emitte
 			.emitte_delay = _read_("emitte_delay", "0.01")
-			Print "Emitte Delay: " & .emitte_delay
+			'Print "Emitte Delay: " & .emitte_delay
 			.particlesPerEmitte = _read_("particlesPerEmitte", "1")
-			Print "Parts Per Emitte: " & .particlesPerEmitte
+			'Print "Parts Per Emitte: " & .particlesPerEmitte
 			'' ==============
 			'' Max Particles
 			.max_particles = _read_("max_particles", "200")
-			Print "Max Parts: " & .max_particles
+			'Print "Max Parts: " & .max_particles
 			'' ==============
 			'' Colors
 			tmp_str = file.ReadString(section_name, "color", "255,255,255,255")
@@ -186,7 +188,7 @@ Namespace GLE
 			Else
 				.Clr.Set(255,255,255,192)
 			EndIf
-			Print "Color: " & .Clr.r & "," & .Clr.g & "," & .Clr.b & "," & .Clr.a
+			'Print "Color: " & .Clr.r & "," & .Clr.g & "," & .Clr.b & "," & .Clr.a
 			'' ==============
 			'' Color var
 			tmp_str = file.ReadString(section_name, "colorVar", "0,0,0,0")
@@ -196,7 +198,7 @@ Namespace GLE
 			Else
 				.Clr.SetVar(0,0,0,0)
 			EndIf
-			Print "ColorVar: " & .Clr.rVar & "," & .Clr.gVar & "," & .Clr.bVar & "," & .Clr.aVar
+			'Print "ColorVar: " & .Clr.rVar & "," & .Clr.gVar & "," & .Clr.bVar & "," & .Clr.aVar
 			'' ==============
 			'' Color fly Var
 			tmp_str = file.ReadString(section_name, "colorFlyVar", "0,0,0,0")
@@ -212,7 +214,7 @@ Namespace GLE
 				.FlyVar_B = 0
 				.FlyVar_A = 0
 			EndIf
-			Print "ColorFlyVar: " & .FlyVar_R & "," & .FlyVar_G & "," & .FlyVar_B & "," & .FlyVar_A
+			'Print "ColorFlyVar: " & .FlyVar_R & "," & .FlyVar_G & "," & .FlyVar_B & "," & .FlyVar_A
 			'' ==============
 			'' Blend mode
 			tmp_str = file.ReadString(section_name, "BlendMode", "BM_TRANS")
@@ -375,7 +377,7 @@ Namespace GLE
 		_SetBlendMode(This.blendMode)
 		'''
 		If This.tex = 0 Then ' If no texture Ptr in the emitter, then binds the default glow texture
-			__GLOW_Texture.Activate()
+			__GLOW_Texture->Activate()
 		Else
 			This.tex->Activate()
 		EndIf
@@ -474,7 +476,7 @@ Namespace GLE
 			Print "Parts Per Emitte: " & .particlesPerEmitte
 			'' ==============
 			'' Max Particles
-			.max_particles = _read_("max_particles", "200")
+			.max_particles = _read_("Max_Particles", "200")
 			Print "Max Parts: " & .max_particles
 			'' ==============
 			'' Colors

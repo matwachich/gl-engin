@@ -1,4 +1,6 @@
 
+'File: Draw
+
 Namespace GLE
 	
 	Declare function get_glow_image() as GLuint
@@ -21,7 +23,7 @@ Namespace GLE
 	Sub Draw_PointGlow(ByVal position As v2d, ByVal _Color As UInteger, ByVal size As Integer = 8)
 		'glDisable(GL_TEXTURE_2D)
 		
-		__GLOW_Texture.Activate()
+		__GLOW_Texture->Activate()
 		glColor4ubv(cast(GLubyte ptr, @_Color))
 		
 		glPointSize(size)
@@ -60,7 +62,7 @@ Namespace GLE
 	
 	Sub Draw_LineGlow(ByVal start As v2d, ByVal _end As v2d, ByVal _Color As UInteger, ByVal lwidth as UShort = 1)
 
-		__GLOW_Texture.Activate()
+		__GLOW_Texture->Activate()
 		
 		Dim As Single nx,ny	
 		nx = -(_end.y-start.y)
