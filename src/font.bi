@@ -1,4 +1,6 @@
 
+'File: Font
+
 Namespace GLE
 	
 	Type Char_Font
@@ -13,10 +15,10 @@ Namespace GLE
 		Declare Constructor(ByVal fontPath As String, ByVal texturePath As String)
 		Declare Destructor()
 		Declare Sub Draw(ByVal Position As v2d, ByVal text As String, ByVal size As UShort, ByVal _color As UInteger)
-		Declare Function StringWidth(ByVal text As String, ByVal size As UShort) As Short
+		Declare Function Measure(ByVal text As String, ByVal size As UShort) As v2d
 		
 		Private:
-		As Texture tex
+		As Texture Ptr tex
 		As Short lineHeight, Base, fontSize
 		As UByte chars_nbr = 0
 		As Char_Font Ptr Array(0 To 255)
@@ -30,7 +32,7 @@ Namespace GLE
 	''==================================
 	
 	Constructor Font(ByVal fontPath As String, ByVal texturePath As String)
-		This.tex = Texture(texturePath)
+		This.tex = New Texture(texturePath)
 		''===
 		Dim readLine As String
 		Dim file As Integer = FreeFile
@@ -44,6 +46,7 @@ Namespace GLE
 	End Constructor
 	
 	Destructor Font()
+		Delete This.tex
 		For i As Short = 0 To chars_nbr
 			Delete This.Array(i)
 		Next i
@@ -57,7 +60,7 @@ Namespace GLE
 		'''
 		glEnable(GL_TEXTURE_2D)
 		glColor4ubv(Cast(GLubyte Ptr, @_color))
-		This.tex.Activate()
+		This.tex->Activate()
 		'''
 		Dim originalPosX As Single = Position.x
 		Dim sizeRatio As Single = size / This.fontSize
@@ -103,25 +106,49 @@ Namespace GLE
 		Position.x += char->advance * sizeRatio
 	End Sub
 	
-	Function Font.StringWidth(ByVal text As String, ByVal size As UShort) As Short
+	Function Font.Measure(ByVal text As String, ByVal size As UShort) As v2d
 		Dim text_len As Short = Len(text)
-		If text_len < 1 Then Return -1
+		If text_len < 1 Then Return v2d0
 		'''
-		If size < 1 Then Return -1
+		If size < 1 Then Return v2d0
 		'''
-		Dim lenght As Short = 0
 		Dim sizeRatio As Single = size / This.fontSize
+		'''
+		Dim h As Short = This.lineHeight * sizeRatio
+		Dim start As Integer = 1
+		While 1
+			start = InStr(start, text, "\n")
+			If start = 0 Then Exit While
+			Print start
+			start += 1
+			'''
+			h += This.lineHeight * sizeRatio
+		Wend
+		'''
+		Dim w As Short = 0
 		Dim charPtr As Char_Font Ptr
+		Dim old_w As Short = 0
+		
 		For i As Short = 1 To text_len
 			charPtr = This.__GetChar(Asc(Mid(text, i, 1)))
-			If charPtr <> 0 Then
-				lenght += charPtr->advance * sizeRatio
+			'''
+			If charPtr->id = 92 And Mid(text, i + 1, 1) = "n" Then
+				If w > old_w Then old_w = w
+				w = 0
+				i += 1
 			Else
-				charPtr = This.__GetChar(Asc(" "))
-				lenght += charPtr->advance * sizeRatio
+				If charPtr <> 0 Then
+					w += charPtr->advance * sizeRatio
+				Else
+					charPtr = This.__GetChar(Asc(" "))
+					w += charPtr->advance * sizeRatio
+				EndIf
 			EndIf
+			'''
 		Next i
-		Return lenght
+		If old_w > w Then w = old_w
+		
+		Return v2d(w, h)
 	End Function
 	
 	Sub Font.__ParseLine(ByVal _line As String)
@@ -150,7 +177,7 @@ Namespace GLE
 			advance = CByte(Mid(_line, 92, 6))
 			''===
 			This.Array(This.chars_nbr)->id = id
-			This.Array(This.chars_nbr)->texRect = Rect(x / This.tex.w, y / This.tex.h, w / This.tex.w, h / This.tex.h)
+			This.Array(This.chars_nbr)->texRect = Rect(x / This.tex->w, y / This.tex->h, w / This.tex->w, h / This.tex->h)
 			This.Array(This.chars_nbr)->size = v2d(w, h)
 			This.Array(This.chars_nbr)->offset = v2d(ox, oy)
 			This.Array(This.chars_nbr)->advance = advance

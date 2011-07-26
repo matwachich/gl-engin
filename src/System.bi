@@ -1,17 +1,64 @@
 
-''===================================
-'' UDT: Display
-''===================================
+'File: System
 
 Namespace GLE
+	
+	/'
+	Class: Display
+		Main program object, creating an instance of it will create a render window.
+		
+		Contains common functions.
+	
+	Property: scrW, scrH (UShort)
+		Contains current screen Width and Height
+	
+	Property: FullScreen (BOOL)
+		*True* if runing in full screen mode, *False* otherwise
+	
+	Property: WinTitle (String)
+		Contains the window title
+	
+	Property: v_sync (BOOL)
+		*True* if vertical synchronisation is activated, *False* otherwise
+	
+	Property: DepthBits (UShort)
+		Contains number of Depth buffer bits
+	
+	Property: StencilBits (UShort)
+		Contains number of Stencil buffer bits
+	
+	Property: view_rect (Rect)
+		Contains the actual viewable rectangle on the screen.
+		
+		for example, when you just launched your app, and never called yet <Display.CenterAndZoom>, then
+		view_rect = Rect(0, 0, <Display.scrW>, <Display.scrH>)
+	
+	Property: zoom (Single)
+		Contains the current zoom factor. A value of 1 means no zoom.
+	'/
 	
 	Constructor Display()
 	End Constructor
 	
-	' Screen Width, Screen Height
-	' FullScreen Mode (True/False), Window Title (If Window mode)
-	' Vertical Sync (Tru/False)
-	' DepthBits (0 - No depth buffer), StencilBits (0 - No Stencil buffer)
+	/'
+	Constructor: Display
+		Main constructor
+	
+	Prototype:
+		>Display(ByVal scrW As Short, ByVal scrH As Short, _
+		>			ByVal fullScreen As BOOL, ByVal winTitle As String, _
+		>			ByVal v_sync As BOOL, _
+		>			ByVal DepthBits As UShort, ByVal StencilBits As UShort)
+	
+	Parameters:
+		scrW (Short) - Window/screen width
+		scrH (Short) - Window/screen height
+		fullScreen (BOOL) - Toggles full screen mode (True/False)
+		winTitle (String) - Window title (caption)
+		v_sync (BOOL) - Toggles vertical synchronisation
+		DepthBits (UShort) - Depth buffer bits (0 - no depth buffer)
+		StencilBits (UShort) - Stencil buffer bits (0 - No Stencil buffer)
+	'/
 	Constructor Display(ByVal scrW As Short, ByVal scrH As Short, _
 						ByVal fullScreen As BOOL, ByVal winTitle As String, _
 						ByVal v_sync As BOOL, _
@@ -48,39 +95,81 @@ Namespace GLE
 		This.DepthBits = DepthBits
 		This.StencilBits = StencilBits
 		'''
-		__GLOW_Texture = Texture("glow.png")
+		__GLOW_Texture = New Texture("glow.png")
 		'__GLOW_Texture.Activate()
     	'glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
     	'glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
 	End Constructor
-	
-	' Destructor
+
 	Destructor Display()
 		'''
+		Delete __GLOW_Texture
 		glfwCloseWindow()
 		glfwTerminate()
 		'''
 	End Destructor
 	''===================================================================================================
 	
-	' Clears the buffers to start draws
+	/'
+	Method: Draw_Begin
+		Clears the buffers to start draws
+	
+	Prototype:
+		>Sub Display.Draw_Begin()
+	'/
 	Sub Display.Draw_Begin()
 		glClear(GL_COLOR_BUFFER_BIT)
 	End Sub
-	' Flip the buffers, displays what has been drawn
+	
+	/'
+	Method: Draw_End
+		Flip the buffers, and displays what has been drawn
+	
+	Prototype:
+		>Sub Display.Draw_End()
+	'/
 	Sub Display.Draw_End()
 		glfwSwapBuffers()
 	End Sub
 	
+	/'
+	Method: SetBKColor
+		Set the background color, that will fill the screen after <Display.Draw_Begin>
 	
-	' Set the background color
+	Prototype:
+		>Sub Display.SetBKColor(ByVal r As UByte, ByVal v As UByte, ByVal b As UByte, ByVal a As UByte)
+	
+	Parameters:
+		r (UByte) - Red (0 - 255)
+		v (UByte) - Green (0 - 255)
+		b (UByte) - Blue (0 - 255)
+		a (UByte) - Alpha (0 - 255)
+	'/
 	Sub Display.SetBKColor(ByVal r As UByte, ByVal v As UByte, ByVal b As UByte, ByVal a As UByte)
 		glClearColor(r/255, v/255, b/255, a/255)
 	End Sub
 	''===================================================================================================
 
+	/'
+	Method: RandomPosition
+		Return a random position within the screen
 	
-	' Get a Random position (v2d) within the window
+	Prototype:
+		>Function Display.RandomPosition(ByVal min_x As Short, ByVal max_x As Short, ByVal min_y As Short, ByVal max_y As Short) As v2d
+	
+	Parameters:
+		min_x (Short) - Minimum x value
+		max_x (Short) - Maximum x value
+		min_y (Short) - Minimun y value
+		max_y (Short) - Maximum y value
+	
+	Return:
+		Position as <v2d>
+	
+	Remarks:
+		If you have scrolled the view using <Display.CenterAndZoom>, or zoomed using <Display.SetZoom>, you must use <Display.ScreenToWorld> to get the position
+		in you current view area
+	'/
 	Function Display.RandomPosition(ByVal min_x As Short, ByVal max_x As Short, ByVal min_y As Short, ByVal max_y As Short) As v2d
 		If max_x = 0 Then
 			max_x = This.scrW
@@ -100,21 +189,152 @@ Namespace GLE
 	''===================================================================================================
 	
 	'
-	Sub Display.SetViewPoint(ByVal view_point As v2d)
-		glTranslated(-1 * (view_point.x - This.view_point.x), -1 * (view_point.y - This.view_point.y), 0)
-		This.view_point = view_point
+	'Sub Display.SetViewPoint(ByVal view_point As v2d)
+		'glMatrixMode(GL_PROJECTION)
+	'	view_point = view_point - v2d(This.scrW / (2 * This.zoom), This.scrH / (2 * This.zoom))
+		'Print "view: " & view_point
+	'	glTranslated(-1 * (view_point.x - This.view_point.x), -1 * (view_point.y - This.view_point.y), 0)
+	'	This.view_point = view_point' + v2d(This.scrW / 2, This.scrH / 2)
+		'glMatrixMode(GL_MODELVIEW)
+	'End Sub
+	
+	'Sub Display.SetZoom(ByVal zoom As Single)
+	'	Dim scale As Single = zoom / This.zoom
+		'glLoadIdentity()
+	'	glTranslated(This.view_point.x, This.view_point.y, 0)
+	'	glScalef(scale, scale, 1)
+	'	glTranslated(-(This.view_point.x), -(This.view_point.y), 0)
+	'	This.zoom = zoom
+	'End Sub
+	
+	/'
+	Method: SetZoom
+		Zoom in/out on the current centered point in the screen
+	
+	Prototype:
+		>Sub Display.SetZoom(ByVal zoom As Single)
+	
+	Parameters:
+		zoom (Single) - Zoom factor
+	'/
+	Sub Display.SetZoom(ByVal zoom As Single)
+		This.CenterAndZoom(This.GetViewCenter(), zoom)
 	End Sub
 	
-	'
-	Function Display.ScreenPosition(ByVal position As v2d) As v2d
-		Return v2d(position.x + This.view_point.x, position.y + This.view_point.y)
-	End Function
-	Function Display.ScreenPosition(ByVal position As Rect) As Rect
-		Return Rect(position.x + This.view_point.x, position.y + This.view_point.y, position.w, position.h)
-	End Function
-	''===================================================================================================
+	/'
+	Method: CenterAndZoom
+		Center the view on a point, and zoom.
 	
-	' Take a ScreenShot
+	Prototype:
+		>Sub Display.CenterAndZoom(ByVal position As v2d, ByVal zoom As Single)
+	
+	Parameters:
+		position (v2d) - The position to center
+		zoom (Single) - The zoom ratio (1 means no zoom)
+	'/
+	Sub Display.CenterAndZoom(ByVal position As v2d, ByVal zoom As Single)
+		Dim LeftGL As Single = position.x - ((This.scrW / Zoom) / 2)
+		Dim RightGL As Single = position.x + ((This.scrW / Zoom) / 2)
+		Dim ButtomGL As Single = position.y + ((This.scrH / Zoom) / 2)
+		Dim TopGL As Single = position.y - ((This.scrH / Zoom) / 2)	
+		glMatrixMode 	(GL_PROJECTION)
+		glLoadIdentity	()
+		'Print "Center at: " & LeftGL; RightGL; ButtomGL; TopGL
+		gluOrtho2D		(LeftGL, RightGL, ButtomGL, TopGL)
+		glMatrixMode 	(GL_MODELVIEW)
+		'''
+		This.zoom = zoom
+		'This.view_rect = position - v2d(This.scrW / (2 * zoom), This.scrH / (2 * zoom))
+		This.view_rect = Rect(LeftGL, TopGL, RightGL - LeftGL, ButtomGL - TopGL)
+	End Sub
+	
+	/'
+	Method: GetViewCenter
+		Return the currently centered point in the screen
+	
+	Prototype:
+		>Function Display.GetViewCenter() As v2d
+	
+	Returns:
+		Centered position as <v2d>
+	'/
+	Function Display.GetViewCenter() As v2d
+		Return v2d(This.view_rect.x + (This.view_rect.w / 2), This.view_rect.y + (This.view_rect.h / 2))
+	End Function
+	
+	/'
+	Method: PointIsVisible
+		Check if a given point is visible
+	
+	Prototype:
+		>Function Display.PointIsVisible(ByVal _point As v2d) As BOOL
+	
+	Parameters:
+		_point (v2d) - Point to check
+	
+	Returns:
+		*True* if the point is visible, *False* otherwise
+	'/
+	Function Display.PointIsVisible(ByVal _point As v2d) As BOOL
+		Return _point.IsInRect(This.view_rect)
+	End Function
+		
+	/'
+	Method: ScreenToWorld
+		Converts a screen relative position to world relative position
+	
+	Prototype:
+		>Function Display.ScreenToWorld(ByVal position As v2d) As v2d
+		>Function Display.ScreenToWorld(ByVal position As Rect) As Rect
+	
+	Parameters:
+		position (v2d or Rect) - Position or Rectangle to convert
+	
+	Returns:
+		According to the parameter passed <v2d> or <Rect>
+	'/
+	Function Display.ScreenToWorld(ByVal position As v2d) As v2d
+		Return v2d(position.x + This.view_rect.x, position.y + This.view_rect.y)
+	End Function
+	Function Display.ScreenToWorld(ByVal position As Rect) As Rect
+		Return Rect(position.x + This.view_rect.x, position.y + This.view_rect.y, position.w, position.h)
+	End Function
+	
+	/'
+	Method: WorldToScreen
+		Converts a world relative position to screen relative position
+	
+	Prototype:
+		>Function Display.WorldToScreen(ByVal position As v2d) As v2d
+		>Function Display.WorldToScreen(ByVal position As Rect) As Rect
+	
+	Parameters:
+		position (v2d or Rect) - Position or Rectangle to convert
+	
+	Returns:
+		According to the parameter passed <v2d> or <Rect>
+	'/
+	Function Display.WorldToScreen(ByVal position As v2d) As v2d
+		Return v2d(position.x - This.view_rect.x, position.y - This.view_rect.y)
+	End Function
+	Function Display.WorldToScreen(ByVal position As Rect) As Rect
+		Return Rect(position.x - This.view_rect.x, position.y - This.view_rect.y, position.w, position.h)
+	End Function
+
+	''===================================================================================================
+
+	/'
+	Method: ScreenShot
+		Takes a screen shot
+	
+	Prototype:
+		>Sub Display.ScreenShot(ByVal FileName As String)
+		>Sub Display.ScreenShot(ByVal FileName As String, ByVal Region As Rect)
+	
+	Parameters:
+		FileName (String) - The file name of the screen shot
+		Region (Rect) - *Optional* the region of the screen to take as a screen shot
+	'/
 	Sub Display.ScreenShot(ByVal FileName As String)
 		Dim As String ext = Right(FileName, 4)
 		Dim SaveType As Integer
@@ -147,7 +367,16 @@ Namespace GLE
 		SOIL_save_screenshot(FileName, SaveType, Region.x, Region.y, Region.w, Region.h)
 	End Sub
 	
-	' Get FPS
+	/'
+	Method: GetFPS
+		Return the current FPS (Frames Per Second)
+	
+	Prototype:
+		>Function Display.GetFPS() As Short
+	
+	Return:
+		Value of the FPS as Short
+	'/
 	Function Display.GetFPS() As Short
 		If This.FPS_Timer = 0 Then
 			This.FPS_Timer = TimerInit()
@@ -158,7 +387,16 @@ Namespace GLE
 		EndIf
 	End Function
 	
-	' Set window title
+	/'
+	Method: SetCaption
+		Change the window title (caption)
+	
+	Prototype:
+		>Sub Display.SetCaption(ByVal caption As String)
+	
+	Parameters:
+		caption (String) - Window title
+	'/
 	Sub Display.SetCaption(ByVal caption As String)
 		glfwSetWindowTitle(caption)
 		This.WinTitle = caption
@@ -263,7 +501,8 @@ Namespace GLE
 		glMatrixMode(GL_PROJECTION)
 	    glPushMatrix()
 	    glLoadIdentity()
-	    glOrtho(0, scrW, scrH, 0, -1, 1)
+	   ' glOrtho(0, scrW, scrH, 0, -1, 1)
+	    gluOrtho2d(0, scrW, scrH, 0)
 	
 	    glMatrixMode(GL_MODELVIEW)
 	    glPushMatrix()

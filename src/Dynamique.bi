@@ -1,4 +1,6 @@
 
+'File: Dynamic
+
 Namespace GLE
 	
 	Constructor Dynamique()
@@ -81,16 +83,10 @@ Namespace GLE
 				'''
 			EndIf
 			
-			'Locate 4, 1: Print Using "#####          "; .Vel.Len()
-			
 			'; Accélération
-			'.Vel.x += .Accel.x * dt
-			'.Vel.y += .Accel.y * dt
 			.Vel = .Vel + (.Accel * dt)
 			
 			'; Position
-			'.Position.x += .Vel.x * dt
-			'.Position.y += .Vel.y * dt
 			.Position = .Position + (.Vel * dt)
 			
 			'; Innertie

@@ -1,11 +1,14 @@
 
+'File: Parallax
+
 Namespace GLE
 	
 	Type Parallax_Layer
 		Declare Constructor(ByVal Display_Obj As Display Ptr, ByVal tex As Texture Ptr, ByVal texScale As v2d, ByVal roomSize As v2d, ByVal ratio As Single)
+		Declare Destructor()
 		Declare Sub Draw(ByVal scrollSpeedRatio As v2d)
 		'''
-		spr As Sprite
+		spr As Sprite Ptr
 		roomSize As v2d
 		ratio As Single
 		'''
@@ -19,10 +22,10 @@ Namespace GLE
 		With This
 			.Display_Obj = Display_Obj
 			'''
-			.spr = Sprite(tex)
-			.spr.Size = roomSize
-			.spr.SetTextureRect(Rect(0, 0, .spr.Size.x / texScale.x, .spr.Size.y / texScale.y))
-			.spr.SetOrigin(O_MID)
+			.spr = New Sprite(tex)
+			.spr->Size = roomSize
+			.spr->SetTextureRect(Rect(0, 0, .spr->Size.x / texScale.x, .spr->Size.y / texScale.y))
+			.spr->SetOrigin(O_MID)
 			'.spr.Position = v2d(Display_Obj->scrW / 2, Display_Obj->scrH / 2)
 			'''
 			.roomSize = roomSize
@@ -30,6 +33,10 @@ Namespace GLE
 			.ratio = ratio
 		End With
 	End Constructor
+	
+	Destructor Parallax_Layer()
+		Delete This.spr
+	End Destructor
 	
 	Sub Parallax_Layer.Draw(ByVal position As v2d)
 		With This
@@ -40,10 +47,10 @@ Namespace GLE
 			drw.y = (.Display_Obj->ScrH * (1 - pos_ratio.y) * .ratio)
 			
 			.__CorrectPosition(drw)
-			drw = .Display_Obj->ScreenPosition(drw)
+			drw = .Display_Obj->ScreenToWorld(drw)
 
-			.spr.Position = drw
-			.spr.Draw()
+			.spr->Position = drw
+			.spr->Draw()
 		End With
 	End Sub
 	
@@ -51,28 +58,28 @@ Namespace GLE
 		With This
 			If Position.IsInRect(Rect(0, 0, .Display_Obj->ScrW, .Display_Obj->ScrH)) = TRUE Then Return
 			'''
-			Dim substract As v2d = v2d(.spr.tex->w * .texScale.x, .spr.tex->h * .texScale.y)
+			Dim substract As v2d = v2d(.spr->tex->w * .texScale.x, .spr->tex->h * .texScale.y)
 			'''
-			If Position.x > .spr.Size.x / 2 Then ' depasse a droite
+			If Position.x > .spr->Size.x / 2 Then ' depasse a droite
 				Do
 					Position.x -= substract.x
-				Loop Until Position.x < .spr.Size.x / 2
+				Loop Until Position.x < .spr->Size.x / 2
 			EndIf
-			If Position.x < (-1 * .spr.Size.x / 2) + .Display_Obj->scrW Then ' depasse a gauche
+			If Position.x < (-1 * .spr->Size.x / 2) + .Display_Obj->scrW Then ' depasse a gauche
 				Do
 					Position.x += substract.x
-				Loop Until Position.x > (-1 * .spr.Size.x / 2) + .Display_Obj->scrW
+				Loop Until Position.x > (-1 * .spr->Size.x / 2) + .Display_Obj->scrW
 			EndIf
 			'''
-			If Position.y > .spr.Size.y / 2 Then ' depasse en bas
+			If Position.y > .spr->Size.y / 2 Then ' depasse en bas
 				Do
 					Position.y -= substract.y
-				Loop Until Position.y < .spr.Size.y / 2
+				Loop Until Position.y < .spr->Size.y / 2
 			EndIf
-			If Position.y < (-1 * .spr.Size.y / 2) + .Display_Obj->scrH Then ' depasse en haut
+			If Position.y < (-1 * .spr->Size.y / 2) + .Display_Obj->scrH Then ' depasse en haut
 				Do
 					Position.y += substract.y
-				Loop Until Position.y > (-1 * .spr.Size.y / 2) + .Display_Obj->scrH
+				Loop Until Position.y > (-1 * .spr->Size.y / 2) + .Display_Obj->scrH
 			EndIf
 		End With
 	End Sub

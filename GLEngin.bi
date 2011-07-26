@@ -1,8 +1,8 @@
 #Ifndef FALSE
-#Define FALSE 0
+	#Define FALSE 0
 #EndIf
 #Ifndef TRUE
-#Define TRUE (Not FALSE)
+	#Define TRUE (Not FALSE)
 #EndIf
 
 'File: GL-Engin
@@ -28,7 +28,7 @@ Macro: GLE_RGBA
 #Define _PI 3.14159265358979323846
 #Define v2d0 v2d(0,0)
 
-#Define _MAX_PARTICLES_ 1000 ' Per one emitter
+#Define _MAX_PARTICLES_ 10000 ' Per one emitter
 #Define _MAX_FRAMES_ 30 ' Per one anim object
 
 #define GLE_RGBA(r, g, b, a)	RGBA((b), (g), (r), (a))
@@ -39,9 +39,6 @@ Macro: GLE_RGBA
 #Include "gl/glfw.bi"
 #Include "perso/soil.bi"
 #Include "perso/inifile.bi"
-
-'NameSpace: GLE
-'	Every thing is contained in this name space.
 
 Namespace GLE
 	
@@ -54,8 +51,8 @@ Namespace GLE
 		Boolean Type
 	
 	Values:
-		TRUE - 1 (UByte)
-		FALSE - 0 (UByte)
+		FALSE - 0 (Integer)
+		TRUE - Not FALSE (Integer)
 	'/
 	Type BOOL As Integer
 	
@@ -80,7 +77,7 @@ Namespace GLE
 	
 	/'
 	Enum: E_ORIGIN
-		Constants to set the Origin of a Sprite Object
+		Constants to set the Origin of a <Sprite> Object
 	
 	Values:
 		O_MID - The origin of a Sprite will be it's center
@@ -120,140 +117,37 @@ Namespace GLE
 	'' Internal UDT
 	''===================================
 	
-	/'
-	Class: Rect
-		Simple rectangle class.
-	'/
-	Type Rect
-		/'
-		Constructor: Rect
-			Rect Default constructor (0,0,0,0)
-		'/
+	Type Rect ' Doc OK
 		Declare Constructor()
-		
-		/'
-		Constructor: Rect
-			Rect Constructor
-		
-		Parameters:
-			x - x Position of the top-left corner
-			y - y Position of the top-left corner
-			w - Width
-			h - Height
-		'/
 		Declare Constructor(ByVal x As Single, ByVal y As Single, ByVal w As Single, ByVal h As Single)
-		'''
+		
 		Declare Operator Cast() As String
 		
-		/'
-		Property: x
-			x Position of the top-left corner
-		
-		Property: y
-			y Position of the top-left corner
-		
-		Property: w
-			Width
-		
-		Property: h
-			Height
-		'/
 		As Single x, y, w, h
 	End Type
 	
-	/'
-	Class: v2d
-		2-Dimension vector class
-	'/
-	Type v2d
-		/'
-		Constructor: v2d
-			v2d Default constructor (0,0)
-		'/
+	Type v2d ' Doc OK
 		Declare Constructor()
-		
-		/'
-		Constructor: v2d
-			v2d constructor (x,y)
-		
-		Parameters:
-			x, y - Vector
-		'/
 		Declare Constructor(ByVal x As Single, ByVal y As Single)
+		'Declare Constructor(ByVal angle As Single, ByVal _len As Single, ByVal from_angle As Byte)
 		
-		/'
-		Method: FromAngle
-			Set the values of x, y according to an Angle (degrees) and a vector lenght
-		
-		Parameters:
-			degrees - Angle (in degrees)
-			lenght - Lenght of the desired vector
-		'/
 		Declare Sub FromAngle(ByVal degrees As Single, ByVal lenght As Single)
 		
-		/'
-		Method: ToVect_Angle
-			Returns the angle (in degrees) between *This* point and another point (v2d)
+		Declare Sub Scale(ByVal ratio As Single)
+		Declare Sub SetLen(ByVal new_len As Single)
+		Declare Sub SetAngle(ByVal new_angle As Single)
 		
-		Parameters:
-			vect - v2d instance
-		
-		Returns:
-			Single - Angle (in degrees)
-		'/
 		Declare Function ToVect_Angle(ByRef vect As v2d) As Single
-		
-		/'
-		Method: ToVect_Len
-			Returns the lenght between *This* point and another point (v2d)
-		
-		Parameters:
-			vect - v2d instance
-		
-		Returns:
-			Single - Lenght
-		'/
 		Declare Function ToVect_Len(ByRef vect As v2d) As Single
 		
-		/'
-		Method: Len
-			Returns the lenght of *This* vector
-		
-		Returns:
-			Single - Lenght
-		'/
 		Declare Function Len() As Single
-		
-		/'
-		Method: Angle
-			Returns the angle (in degrees) of *This* vector
-		
-		Returns:
-			Single - Angle (in degrees)
-		'/
 		Declare Function Angle() As Single
 		
-		/'
-		Method: IsInRect
-			Checks if *This* point is IN a specified *Rect*
-		
-		Parameters:
-			test - Rect instance
-		
-		Returns:
-			BOOL - *True* If point in rect, otherwise *False*
-		'/
 		Declare Function IsInRect(ByVal test As Rect) As BOOL
+		Declare Function IsInCircle(ByVal center As v2d, ByVal radius As Single) As BOOL
 		
 		Declare Operator Cast() As String
-		
-		/'
-		Property: x
-			x
-		
-		Property: y
-			y
-		'/
+
 		As Single x, y
 	End Type
 	
@@ -274,136 +168,47 @@ Namespace GLE
 	''===================================
 	
 	Declare Sub __OnWindowClose()
-	
-	/'
-	Class: Display
-		Main program object, creating an instance of it will create a render window.
-		
-		Contains common functions.
-	'/
-	Type Display
+
+	Type Display ' Doc OK
 		Declare Constructor()
 
-		/'
-		Donstructor: Display
-			Main constructor
-		
-		Parameters:
-			scrW (Short) - Window/screen width
-			scrH (Short) - Window/screen height
-			fullScreen (BOOL) - Toggles full screen mode (True/False)
-			winTitle (String) - Window title (caption)
-			v_sync (BOOL) - Toggles vertical synchronisation
-			DepthBits (UShort) - Depth buffer bits (0 - no depth buffer)
-			StencilBits (UShort) - Stencil buffer bits (0 - No Stencil buffer)
-		'/
 		Declare Constructor(ByVal scrW As Short, ByVal scrH As Short, _
 							ByVal fullScreen As BOOL, ByVal winTitle As String, _
 							ByVal v_sync As BOOL, _
 							ByVal DepthBits As UShort, ByVal StencilBits As UShort)
-							
-		' Destructor
 		Declare Destructor()
 		''===================================================================================================
 		
-		/'
-		Method: Draw_Begin
-			Clears the buffers to start draws
-		'/
 		Declare Sub Draw_Begin()
-
-		/'
-		Method: Draw_End
-			Flip the buffers, and displays what has been drawn
-		'/
 		Declare Sub Draw_End()
 		
-		' Set the background color
-		/'
-		Method: SetBKColor
-			Set the background color, that will fill the screen after <GLE.Display.Draw_Begin>
-		
-		Parameters:
-			r (UByte) - Red (0 - 255)
-			v (UByte) - Green (0 - 255)
-			b (UByte) - Blue (0 - 255)
-			a (UByte) - Alpha (0 - 255)
-		'/
 		Declare Sub SetBKColor(ByVal r As UByte, ByVal v As UByte, ByVal b As UByte, ByVal a As UByte)
 		''===================================================================================================
 		
-		' Get a Random position (v2d) within the window
-		/'
-		Method: RandomPosition
-			Return a random position within the screen
-		
-		Parameters:
-			min_x (Short) - Minimum x value
-			max_x (Short) - Maximum x value
-			min_y (Short) - Minimun y value
-			max_y (Short) - Maximum y value
-		
-		Return:
-			<v2d>
-		'/
 		Declare Function RandomPosition(ByVal min_x As Short, ByVal max_x As Short, ByVal min_y As Short, ByVal max_y As Short) As v2d
 		''===================================================================================================
 		
-		' Scrolling
-		/'
-		Method: SetViewPoint
-			Set the position of the top left corner of the screen
+		Declare Sub SetZoom(ByVal zoom As Single)
+		Declare Sub CenterAndZoom(ByVal position As v2d, ByVal zoom As Single)
+		Declare Function GetViewCenter() As v2d
 		
-		Parameters:
-			view_point (<v2d>) - Position of the view point
-		'/
-		Declare Sub SetViewPoint(ByVal view_point As v2d)
+		Declare Function PointIsVisible(ByVal _point As v2d) As BOOL
 		
-		' Screen Position
-		/'
-		Method: SetViewPoint
-			Converts a screen relative position to the world relative position
-		
-		Parameters:
-			position (<v2d> or <rect>) - Position or Rectangle to convert
-		
-		Returns:
-			According to the parameter passed <v2d> or <rect>
-		'/
-		Declare Function ScreenPosition(ByVal position As v2d) As v2d
-		Declare Function ScreenPosition(ByVal position As Rect) As Rect
 		''===================================================================================================
 		
-		' Take a ScreenShot
-		/'
-		Method: ScreenShot
-			Takes a screen shot
+		Declare Function ScreenToWorld(ByVal position As v2d) As v2d
+		Declare Function ScreenToWorld(ByVal position As Rect) As Rect
 		
-		Parameters:
-			FileName (String) - The file name of the screen shot
-			Region (<Rect>) - *Optional* the region of the screen to take as a screen shot
-		'/
+		Declare Function WorldToScreen(ByVal position As v2d) As v2d
+		Declare Function WorldToScreen(ByVal position As Rect) As Rect
+		
+		''===================================================================================================
+		
 		Declare Sub ScreenShot(ByVal FileName As String)
 		Declare Sub ScreenShot(ByVal FileName As String, ByVal Region As Rect)
 		
-		' Get FPS
-		/'
-		Method: GetFPS
-			Return the current FPS (Frames Per Second)
-		
-		Return:
-			Value of the FPS as Short
-		'/
 		Declare Function GetFPS() As Short
 		
-		' Set window title
-		/'
-		Method: SetCaption
-			Change the window title (caption)
-		
-		Parameters:
-			caption (String) - Window title
-		'/
 		Declare Sub SetCaption(ByVal caption As String)
 		
 		''===================================================================================================
@@ -420,7 +225,8 @@ Namespace GLE
 		As BOOL v_sync
 		As UShort DepthBits, StencilBits
 		
-		As v2d view_point = v2d0
+		As Rect view_rect = Rect(0,0,0,0)
+		As Single zoom = 1
 		
 		As Double FPS_Timer = 0
 		
@@ -430,17 +236,16 @@ Namespace GLE
 	'' Texture object
 	''===================================
 	
-	Type Texture
+	Type Texture ' Doc OK
 		Declare Constructor()
-		' Simply load a Texture
 		Declare Constructor(ByVal FilePath As String)
-		' Load a Texture, advanced (SOIL Flags)
 		Declare Constructor(ByVal FilePath As String, ByVal load_flags As Integer, ByVal texture_flag As Integer)
-		' Binds the texture
+		Declare Destructor()
+
 		Declare Sub Activate()
-		' Cast operator ( to be able to write: glBindTexture(GL_TEXTURE_2D, Texture) )
+
 		Declare Operator Cast() As GLuint
-		'''
+
 		As GLuint glTexture
 		As Short w, h
 	End Type
@@ -448,7 +253,7 @@ Namespace GLE
 	''===================================
 	'' Internals
 	''===================================
-	Dim As Texture __GLOW_Texture
+	Dim As Texture Ptr __GLOW_Texture
 
 	''===================================
 	'' Sprite and animation
@@ -466,7 +271,7 @@ Namespace GLE
 	End Type
 	'' === End ===
 	
-	Type Animation
+	Type Animation ' Doc OK
 		Declare Constructor()
 		Declare Destructor()
 		Declare Sub AddFrame(ByVal tex As Texture Ptr, ByVal duration As Single)
@@ -488,6 +293,11 @@ Namespace GLE
 		Declare Constructor()
 		' Constructor
 		Declare Constructor(ByVal tex As Texture Ptr)
+		' Overloaded Constructor
+		Declare Constructor(ByVal tex_path As String)
+		
+		' Destructor
+		Declare Destructor()
 		''===================================================================================================
 		
 		' Property angle
@@ -527,12 +337,13 @@ Namespace GLE
 		' Geometry Functions
 		Declare Function ToPoint_Dist(ByVal _point As v2d) As Single
 		Declare Function ToPoint_Angle(ByVal _point As v2d) As Single
-		' To Point Angle Diff (Missing)
+		Declare Function ToPoint_AngleDiff(ByVal _point As v2d) As Single
 		Declare Function ToPoint_Vect(ByVal _point As v2d) As v2d
 		Declare Function ToPoint_Vect(ByVal _point As v2d, ByVal lenght As Single) As v2d
 		
 		Declare Function ToSprite_Dist(ByRef sprite As Sprite) As Single
 		Declare Function ToSprite_Angle(ByRef sprite As Sprite) As Single
+		Declare Function ToSprite_AngleDiff(ByRef sprite As Sprite) As Single
 		Declare Function ToSprite_Vect(ByRef sprite As Sprite) As v2d
 		Declare Function ToSprite_Vect(ByRef sprite As Sprite, ByVal lenght As Single) As v2d
 		
@@ -555,6 +366,9 @@ Namespace GLE
 		As Short Anim_Frame = 1
 		As Double Anim_Timer = -1
 		As Double Anim_CurrFramDuration = 0
+		'''
+		Private:
+		As BOOL _delete_tex = FALSE
 	End Type
 	
 	''===================================
@@ -695,7 +509,7 @@ Namespace GLE
 		
 		As BOOL actif = FALSE
 		
-		Private:
+		'Private:
 		As Short _nbr_particles = 0
 		As Particle Ptr array(0 To _MAX_PARTICLES_)
 		
