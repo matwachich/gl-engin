@@ -11,11 +11,92 @@ Namespace GLE
 	
 	Definition:
 		(start code)
-		
+		Type Sprite
+			Declare Constructor()
+			Declare Constructor(ByVal tex As Texture Ptr)
+			Declare Constructor(ByVal tex_path As String)
+
+			Declare Destructor()
+			''===================================================================================================
+
+			Declare Property Angle() As Single
+			Declare Property Angle(ByVal value As Single)
+			''===================================================================================================
+
+			Declare Sub Draw()
+			Declare Sub Draw(ByVal anim As Animation Ptr)
+			Declare Function Draw(ByVal anim As Animation Ptr, ByVal stop_frame As Short) As BOOL
+
+			Declare Sub SetTexture(ByVal tex As Texture Ptr)
+			Declare Sub SetTexture(ByVal tex As Texture Ptr, ByVal changeSize As BOOL)
+			Declare Sub SetTexture(ByVal tex As Texture Ptr, ByVal _rect_ As Rect)
+			Declare Sub SetTexture(ByVal tex As Texture Ptr, ByVal _rect_ As Rect, ByVal changeSize As BOOL)
+
+			Declare Sub SetTextureRect(ByVal _rect_ As Rect)
+			''===================================================================================================
+
+			Declare Sub SetOrigin(ByVal flag As E_ORIGIN)
+			''===================================================================================================
+
+			Declare Function GetPoint(ByVal _point As v2d) As v2d
+			Declare Function GetPoint(ByVal ratioX As Single, ByVal ratioY As Single) As v2d
+			''===================================================================================================
+
+			Declare Function ToPoint_Dist(ByVal _point As v2d) As Single
+			Declare Function ToPoint_Angle(ByVal _point As v2d) As Single
+			Declare Function ToPoint_AngleDiff(ByVal _point As v2d) As Single
+			Declare Function ToPoint_Vect(ByVal _point As v2d) As v2d
+			Declare Function ToPoint_Vect(ByVal _point As v2d, ByVal lenght As Single) As v2d
+			
+			Declare Function ToSprite_Dist(ByRef sprite As Sprite) As Single
+			Declare Function ToSprite_Angle(ByRef sprite As Sprite) As Single
+			Declare Function ToSprite_AngleDiff(ByRef sprite As Sprite) As Single
+			Declare Function ToSprite_Vect(ByRef sprite As Sprite) As v2d
+			Declare Function ToSprite_Vect(ByRef sprite As Sprite, ByVal lenght As Single) As v2d
+			
+			Declare Sub AnimRewind(ByVal frame As UShort)
+
+			Declare Function Animate(ByVal anim As Animation Ptr) As BOOL
+			Declare Function Animate(ByVal anim As Animation Ptr, ByVal stop_frame As Short) As BOOL
+			
+			''===================================================================================================
+			
+			As v2d Position = v2d0, Size = v2d0, Origin = v2d0
+			As Single PRIVATE_Angle = 0
+			As Rect texRect = Rect(0,0,1,1)
+			As GLuint Color = GLE_RGBA(255,255,255,255)
+			As E_BLEND_MODE blendMode = BM_TRANS
+			As Texture Ptr tex = 0
+
+			As Short Anim_Frame = 1
+			As Double Anim_Timer = -1
+			As Double Anim_CurrFramDuration = 0
+
+			Private:
+			As BOOL _delete_tex = FALSE
+		End Type
 		(end)
 	
-	Property: 
+		Property: Position (v2d)
+			World's relative position
+			
+		Property: Size (v2d)
+			Size (in pixels)
+		
+		Property: Origin (v2d)
+			Origin point or Center of gravity, it's the positioning and the pivot point
+		
+		Property: Angle (Single)
+			Angle (in degrees)
+		
+		Property: Color (UInteger)
+			Color, white means that the original Texture colors are not modified (Use <GLE_RGBA> to assign color)
+		
+		Property: blendMode (E_BLEND_MODE)
+			Blending mode
 	'/
+	
+	''==================================================================================
 	
 	/'
 	Constructor: Sprite

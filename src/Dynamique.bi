@@ -3,6 +3,12 @@
 
 Namespace GLE
 	
+	/'
+	Class: Dynamique
+		This class is a kind of extension of the <Sprite> class, it adds to it the ability to move and rotate automatically
+		using some dynamic variables such as velocity, acceleration, angular acceleration and innertia.
+	'/
+	
 	Constructor Dynamique()
 	End Constructor
 	Constructor Dynamique(ByVal spr As Sprite Ptr)
@@ -117,6 +123,11 @@ Namespace GLE
 			'; Réinitialisation du timer
 			.move_timer = TimerInit()
 		End With
+	End Sub
+	
+	Sub Dynamique.__DrawDbg()
+		Draw_LineGlow(This.Position, This.Position + This.Vel, GLE_RGBA(255,128,128,255), 16)
+		Draw_LineGlow(This.Position, This.Position + This.Accel, GLE_RGBA(128,128,255,255), 16)
 	End Sub
 	
 	Property Dynamique.Angle() As Single

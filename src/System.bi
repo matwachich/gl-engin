@@ -294,10 +294,20 @@ Namespace GLE
 		According to the parameter passed <v2d> or <Rect>
 	'/
 	Function Display.ScreenToWorld(ByVal position As v2d) As v2d
-		Return v2d(position.x + This.view_rect.x, position.y + This.view_rect.y)
+		Dim ret As v2d
+		ret.x = This.View_Rect.x + (This.View_Rect.w * (position.x / This.scrW)) ' vive les maths!
+		ret.y = This.View_Rect.y + (This.View_Rect.h * (position.y / This.scrH))
+		Return ret
+		'Return v2d(position.x + This.view_rect.x, position.y + This.view_rect.y)
 	End Function
 	Function Display.ScreenToWorld(ByVal position As Rect) As Rect
-		Return Rect(position.x + This.view_rect.x, position.y + This.view_rect.y, position.w, position.h)
+		Dim ret As Rect
+		ret.x = This.View_Rect.x + (This.View_Rect.w * (position.x / This.scrW)) ' vive les maths!
+		ret.y = This.View_Rect.y + (This.View_Rect.h * (position.y / This.scrH))
+		ret.w = position.w
+		ret.h = position.h
+		Return ret
+		'Return Rect(position.x + This.view_rect.x, position.y + This.view_rect.y, position.w, position.h)
 	End Function
 	
 	/'
@@ -315,10 +325,18 @@ Namespace GLE
 		According to the parameter passed <v2d> or <Rect>
 	'/
 	Function Display.WorldToScreen(ByVal position As v2d) As v2d
-		Return v2d(position.x - This.view_rect.x, position.y - This.view_rect.y)
+		Dim ret As v2d
+		ret.x = (position.x - This.View_Rect.x) * (This.scrW / This.View_Rect.w) ' vive les maths!
+		ret.y = (position.y - This.View_Rect.y) * (This.scrH / This.View_Rect.h)
+		Return ret
 	End Function
 	Function Display.WorldToScreen(ByVal position As Rect) As Rect
-		Return Rect(position.x - This.view_rect.x, position.y - This.view_rect.y, position.w, position.h)
+		Dim ret As Rect
+		ret.x = (position.x - This.View_Rect.x) * (This.scrW / This.View_Rect.w) ' vive les maths!
+		ret.y = (position.y - This.View_Rect.y) * (This.scrH / This.View_Rect.h)
+		ret.w = position.w
+		ret.h = position.h
+		Return ret
 	End Function
 
 	''===================================================================================================
@@ -417,6 +435,9 @@ Namespace GLE
 	
 		'using screen info w and h as params 
 		glViewport(0, 0, scrW, scrH)
+		
+		glEnable(GL_SCISSOR_TEST)
+		glScissor(0, 0, scrW, scrH)
 		
 		' Pour les coordonnées de textures
 		'glMatrixMode(GL_TEXTURE)

@@ -14,6 +14,9 @@ Const: _PI
 Const: v2d0
 	v2d(0,0) (<v2d>)
 
+Const: rect0
+	Rect(0,0,0,0) (<Rect>)
+
 Const: _MAX_PARTICLES_
 	Max particles per one <Particle_Emitter> (default 1000)
 
@@ -25,11 +28,13 @@ Macro: GLE_RGBA
 
 	GLE_RGBA(red, green, blue, alpha)
 '/
-#Define _PI 3.14159265358979323846
-#Define v2d0 v2d(0,0)
+#Define _PI 	3.14159265358979323846
+#Define v2d0	v2d(0,0)
+#Define rect0	Rect(0,0,0,0)
 
-#Define _MAX_PARTICLES_ 10000 ' Per one emitter
-#Define _MAX_FRAMES_ 30 ' Per one anim object
+#Define _MAX_PARTICLES_	10000 ' Per one emitter
+#Define _MAX_FRAMES_	30 ' Per one anim object
+'#Define _MAX_COLLISIONSHAPES 10 ' Per one sprite
 
 #define GLE_RGBA(r, g, b, a)	RGBA((b), (g), (r), (a))
 
@@ -95,6 +100,21 @@ Namespace GLE
 	End Enum
 	
 	/'
+	Enum: E_COLISION
+		Constants that defines collision shapes
+	
+	Values:
+		C_POINT - Point
+		C_CIRCLE - Circle
+		C_RECT - Axis Aligned Bounding Box (Rectangle)
+	'/
+	Enum E_COLLISION
+		C_POINT = 0
+		C_CIRCLE
+		C_RECT
+	End Enum
+	
+	/'
 	Variable: _Runing_
 		Special global variable that controls the execution of your program
 	
@@ -122,6 +142,7 @@ Namespace GLE
 		Declare Constructor(ByVal x As Single, ByVal y As Single, ByVal w As Single, ByVal h As Single)
 		
 		Declare Operator Cast() As String
+		Declare Function Intersect(ByRef other_rect As Rect) As BOOL
 		
 		As Single x, y, w, h
 	End Type
@@ -253,7 +274,7 @@ Namespace GLE
 	''===================================
 	'' Internals
 	''===================================
-	Dim As Texture Ptr __GLOW_Texture
+	Dim Shared As Texture Ptr __GLOW_Texture
 
 	''===================================
 	'' Sprite and animation
@@ -288,53 +309,37 @@ Namespace GLE
 	
 	''=======================================================================================================
 	
-	Type Sprite
-		' Default Constructor
+	Type Sprite ' Doc OK
 		Declare Constructor()
-		' Constructor
 		Declare Constructor(ByVal tex As Texture Ptr)
-		' Overloaded Constructor
 		Declare Constructor(ByVal tex_path As String)
-		
-		' Destructor
+
 		Declare Destructor()
 		''===================================================================================================
-		
-		' Property angle
+
 		Declare Property Angle() As Single
 		Declare Property Angle(ByVal value As Single)
 		''===================================================================================================
-		
-		' Drawing method
+
 		Declare Sub Draw()
-		' Draw and Animate
 		Declare Sub Draw(ByVal anim As Animation Ptr)
-		' Draw and animate, and return FALSE when stop_frame is reached
 		Declare Function Draw(ByVal anim As Animation Ptr, ByVal stop_frame As Short) As BOOL
-		
-		' Change texture (Without changing the current sprite size)
+
 		Declare Sub SetTexture(ByVal tex As Texture Ptr)
-		' Change texture with or without changing the current sprite size
 		Declare Sub SetTexture(ByVal tex As Texture Ptr, ByVal changeSize As BOOL)
-		' Change texture without changing the current sprite size, and specifying a Texture Rect
 		Declare Sub SetTexture(ByVal tex As Texture Ptr, ByVal _rect_ As Rect)
-		' Change texture with or without changing the current sprite size, and specifying a Texture Rect
 		Declare Sub SetTexture(ByVal tex As Texture Ptr, ByVal _rect_ As Rect, ByVal changeSize As BOOL)
-		
-		' Set Texture Rect
+
 		Declare Sub SetTextureRect(ByVal _rect_ As Rect)
 		''===================================================================================================
-		
-		' Set Origin
+
 		Declare Sub SetOrigin(ByVal flag As E_ORIGIN)
 		''===================================================================================================
-		
-		' Get Fixed Point
+
 		Declare Function GetPoint(ByVal _point As v2d) As v2d
 		Declare Function GetPoint(ByVal ratioX As Single, ByVal ratioY As Single) As v2d
 		''===================================================================================================
-		
-		' Geometry Functions
+
 		Declare Function ToPoint_Dist(ByVal _point As v2d) As Single
 		Declare Function ToPoint_Angle(ByVal _point As v2d) As Single
 		Declare Function ToPoint_AngleDiff(ByVal _point As v2d) As Single
@@ -347,26 +352,24 @@ Namespace GLE
 		Declare Function ToSprite_Vect(ByRef sprite As Sprite) As v2d
 		Declare Function ToSprite_Vect(ByRef sprite As Sprite, ByVal lenght As Single) As v2d
 		
-		' Animation Function
-		' Makes the next animation that will be applied to This start from the begining
 		Declare Sub AnimRewind(ByVal frame As UShort)
-		
-		' Animates a sprite, with (optional) stop_frame, that if it is reached, the function returns FALSE
+
 		Declare Function Animate(ByVal anim As Animation Ptr) As BOOL
 		Declare Function Animate(ByVal anim As Animation Ptr, ByVal stop_frame As Short) As BOOL
 		
 		''===================================================================================================
+		
 		As v2d Position = v2d0, Size = v2d0, Origin = v2d0
 		As Single PRIVATE_Angle = 0
 		As Rect texRect = Rect(0,0,1,1)
-		As GLuint Color = GLE_RGBA(255,255,255,255)
+		As UInteger Color = GLE_RGBA(255,255,255,255)
 		As E_BLEND_MODE blendMode = BM_TRANS
 		As Texture Ptr tex = 0
-		'''
+
 		As Short Anim_Frame = 1
 		As Double Anim_Timer = -1
 		As Double Anim_CurrFramDuration = 0
-		'''
+
 		Private:
 		As BOOL _delete_tex = FALSE
 	End Type
@@ -380,6 +383,8 @@ Namespace GLE
 		Declare Constructor(ByVal spr As Sprite Ptr)
 		Declare Sub Draw()
 		Declare Sub Draw(ByVal _static As BOOL)
+		
+		Declare Sub __DrawDbg()
 		
 		As v2d Position = v2d0, Vel = v2d0, Accel = v2d0
 		As Single VelMax = 0
@@ -400,8 +405,33 @@ Namespace GLE
 	End Type
 	
 	''===================================
+	'' Collision Shape
+	''===================================
+	
+	Type Collision_Shape ' Doc OK
+		Declare Constructor()
+		Declare Constructor(ByVal spr As Sprite Ptr, ByVal position As v2d)
+		Declare Constructor(ByVal spr As Sprite Ptr, ByVal position As v2d, ByVal radius As Single)
+		Declare Constructor(ByVal spr As Sprite Ptr, ByVal rectangle As Rect)
+		'''
+		Declare Function Collide(ByRef other_shape As Collision_Shape) As BOOL
+		'''
+		Declare Sub __DrawDbg()
+		'''
+		spr As Sprite Ptr = 0
+		_type As E_COLLISION
+		'''
+		position As v2d = v2d0
+		'''
+		radius As Single = 0
+		rectangle As Rect = rect0
+		
+	End Type
+	
+	''===================================
 	'' Particles Engin UDT
 	''===================================
+	
 	Type Particle ' Internal use only
 		Declare Constructor()
 		Declare Sub Draw()
@@ -468,12 +498,13 @@ Namespace GLE
 		Declare Constructor(ByVal tex As Texture Ptr, ByVal texRect As Rect, ByVal cfg_ptr As Particle_Emitter_Cfg Ptr)
 		
 		Declare Sub SetTextureRect(ByVal texRect As Rect)
-		Declare Sub SetConfig(ByVal parts_cfg As Particle_Emitter_Cfg Ptr)
+		
 		Declare Sub Spawn()
 		Declare Sub Spawn(ByVal nbr As UShort)
 		Declare Sub Draw()
 		
 		'''
+		Declare Sub SetConfig(ByVal parts_cfg As Particle_Emitter_Cfg Ptr)
 		Declare Function LoadConfig(ByVal file_name As String, ByVal section_name As String) As BOOL
 		
 		As Texture Ptr tex = 0
@@ -565,6 +596,7 @@ End Namespace
 #Include "src/Color.bi"
 #Include "src/system.bi"
 #Include "src/texture.bi"
+#Include "src/Collision.bi"
 #Include "src/sprite.bi"
 #Include "src/Dynamique.bi"
 #Include "src/draw.bi"

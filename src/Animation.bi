@@ -25,6 +25,8 @@ Namespace GLE
 		(end)
 	'/
 	
+	'===============================================================================
+	
 	/'
 	Constructor: Animation
 		Default constructor, create an empty <Animation> object.
