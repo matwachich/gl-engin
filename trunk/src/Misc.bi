@@ -1,5 +1,6 @@
 
 'File: Misc
+'	Some usefull functions.
 
 Namespace GLE
 	
@@ -117,28 +118,81 @@ Namespace GLE
 	End Function
 	''===================================================================================================
 	
+	/'
+	Function: Random_Int
+		Returns a random Integer in the range [first, last).
+		
+		Means first <= Random number < last
 	
+	Prototype:
+		>Function Random_Int(first As Integer, last As Integer) As Integer
+	
+	Parameters:
+		first (Integer) - Minimum value (included)
+		last (Integer) - Maximum value (not included)
+	
+	Returns:
+		Random integer number (As Integer)
+	'/
 	Function Random_Int(first As Integer, last As Integer) As Integer
 	    Function = Rnd * (last - first) + first
 	End Function
 	
+	/'
+	Function: Random_Double
+		Returns a random double precision Floating point number in the range [first, last).
+		
+		Means first <= Random number < last
+	
+	Prototype:
+		>Function Random_Double(first As Double, last As Double) As Double
+	
+	Parameters:
+		first (Double) - Minimum value (included)
+		last (Double) - Maximum value (not included)
+	
+	Returns:
+		Random integer number (As Double)
+	'/
 	Function Random_Double(first As Double, last As Double) As Double
 	    Function = Rnd * (last - first) + first
 	End Function
 	''===================================================================================================
 	
+	/'
+	Function: TimerInit
+		Return a timestamp to be used in time calculation.
 	
+	Prototype:
+		>Function TimerInit() As Double
+	
+	Returns:
+		Timestamps As Double
+	'/
 	Function TimerInit() As Double
 		Return Timer
 	End Function
 	
+	/'
+	Function: TimerDiff
+		Return the time ellapsed (in seconds) since the provided timestamp.
+	
+	Prototype:
+		>Function TimerDiff(ByVal TimeStamp As Double) As Double
+	
+	Parameters:
+		TimeStamp (Double) - Timestamp returned by <TimerInit>
+	
+	Returns:
+		Time ellapsed in seconds since TimeStamp, As Double
+	'/
 	Function TimerDiff(ByVal TimeStamp As Double) As Double
 		Return Timer - TimeStamp
 	End Function
 	''===================================================================================================
 	
 	
-	Sub _StringSplit(ByVal s_in As String, ByVal char As String, result() As String)
+	Sub _StringSplit(ByVal s_in As String, ByVal char As String, result() As String) ' needed for the font system
 	    Dim As String s = s_in, var1, var2
 		Dim As Long n, pst
 	    #Macro split(stri, char, var1, var2)

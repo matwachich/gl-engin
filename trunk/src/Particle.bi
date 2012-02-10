@@ -97,6 +97,16 @@ Namespace GLE
 	''=========================================================================================
 	''=========================================================================================
 	
+	/'
+	Class: Particle_Emitter_Cfg
+		This object contains a Particle's emitter configuration.
+	
+	Definition:
+		(start code)
+		
+		(end)
+	'/
+	
 	Constructor Particle_Emitter_Cfg()
 	End Constructor
 	
@@ -239,21 +249,7 @@ Namespace GLE
 	''=========================================================================================
 	''=========================================================================================
 	
-	/'	
-	#Macro _P_Emitter_Constructor(tex, rect, cfg)
-		For i As Short = 0 To _MAX_PARTICLES_
-			This.array(i) = 0
-		Next i
-		'''
-		If tex <> 0 Then This.tex = tex
-		'''
-		This.SetTextureRect(rect)
-		'''
-		If cfg <> 0 Then This.SetConfig(cfg)
-		'''
-		This.emitte_timer = TimerInit()
-	#EndMacro
-	'/
+	
 	
 	Constructor Particle_Emitter()
 		This.__Constructor(0, Rect(0, 0, 0, 0), 0)

@@ -1,10 +1,23 @@
 
 'File: Draw
+'	Primitives drawing functions.
 
 Namespace GLE
 	
 	Declare function get_glow_image() as GLuint
 	
+	/'
+	Function: Draw_Point
+		Draw a point.
+	
+	Protoype:
+		>Sub Draw_Point(ByVal position As v2d, ByVal _Color As UInteger, ByVal size As Integer = 1)
+	
+	Parameters:
+		position (v2d) - Position to draw to
+		_Color (UInteger) - Color (use <GLE_RGBA>)
+		size (Integer) - Size of the point
+	'/
 	Sub Draw_Point(ByVal position As v2d, ByVal _Color As UInteger, ByVal size As Integer = 1)
 		glDisable(GL_TEXTURE_2D)
 		
@@ -20,6 +33,18 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_PointGlow
+		Draw a glowy point
+	
+	Prototype:
+		>Sub Draw_PointGlow(ByVal position As v2d, ByVal _Color As UInteger, ByVal size As Integer = 8)
+	
+	Parameters:
+		position (v2d) - Position to draw to
+		_Color (UInteger) - Color (use <GLE_RGBA>)
+		size (Integer) - Size of the point
+	'/
 	Sub Draw_PointGlow(ByVal position As v2d, ByVal _Color As UInteger, ByVal size As Integer = 8)
 		'glDisable(GL_TEXTURE_2D)
 		
@@ -36,7 +61,21 @@ Namespace GLE
 		'glEnable(GL_TEXTURE_2D)
 	End Sub
 	
-	Sub Draw_Line(ByVal start As v2d, ByVal _end As v2d, ByVal _Color As UInteger, ByVal size As Integer = 1, ByVal smooth_edges As Integer = 1)
+	/'
+	Function: Draw_Line
+		Draw a line
+	
+	Prototype:
+		>Sub Draw_Line(ByVal start As v2d, ByVal _end As v2d, ByVal _Color As UInteger, ByVal size As Integer = 1, ByVal smooth_edges As Integer = 1)
+	
+	Parameters:
+		start (v2d) - Start point of the line
+		_end (v2d) - End point of the line
+		_Color (UInteger) - Color (use <GLE_RGBA>)
+		size (Integer) - Width of the line (thickness)
+		smooth_edges (BOOL) - Smooth the edges when size is bigger than 1
+	'/
+	Sub Draw_Line(ByVal start As v2d, ByVal _end As v2d, ByVal _Color As UInteger, ByVal size As Integer = 1, ByVal smooth_edges As BOOL = TRUE)
 		glDisable(GL_TEXTURE_2D)
 		
 		glColor4ubv(cast(GLubyte ptr, @_Color))
@@ -49,7 +88,7 @@ Namespace GLE
 			glVertex2d(_end.x, _end.y)
 		glEnd()
 		
-		If smooth_edges > 0 And size > 1 Then
+		If smooth_edges = TRUE And size > 1 Then
 			glPointSize(size)
 			glBegin(GL_POINTS)
 				glVertex2d(start.x, start.y)
@@ -60,6 +99,19 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_LineGlow
+		Draw a glowy line
+	
+	Prototype:
+		>Sub Draw_LineGlow(ByVal start As v2d, ByVal _end As v2d, ByVal _Color As UInteger, ByVal lwidth as UShort = 1)
+	
+	Parameters:
+		start (v2d) - Start point of the line
+		_end (v2d) - End point of the line
+		_Color (UInteger) - Color (use <GLE_RGBA>)
+		lwidth (Integer) - Width of the line (thickness)
+	'/
 	Sub Draw_LineGlow(ByVal start As v2d, ByVal _end As v2d, ByVal _Color As UInteger, ByVal lwidth as UShort = 1)
 
 		__GLOW_Texture->Activate()
@@ -155,6 +207,16 @@ Namespace GLE
 		
 	end Sub
 	
+	/'
+	Function: Draw_Rect
+		Draw a rectangle
+	
+	Prototype:
+		>Sub Draw_Rect(ByVal _rect As Rect, ByVal _Color As UInteger, ByVal angle As Integer = 0, ByVal line_size As Integer = 1, ByVal smooth_edges As Integer = 1)
+	
+	Parameters:
+		
+	'/
 	Sub Draw_Rect(ByVal _rect As Rect, ByVal _Color As UInteger, ByVal angle As Integer = 0, ByVal line_size As Integer = 1, ByVal smooth_edges As Integer = 1)
 		glDisable(GL_TEXTURE_2D)
 		glPushMatrix()
@@ -187,6 +249,16 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_RectGlow(ByVal _rect As Rect, ByVal _Color As UInteger, ByVal angle As Integer = 0, ByVal line_size As Integer = 1)', ByVal smooth_edges As Integer = 1)
 		glPushMatrix()
 		
@@ -210,6 +282,16 @@ Namespace GLE
 		glPopMatrix()
 	End Sub	
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_RectFill(ByVal _rect As Rect, ByVal _Color As UInteger, ByVal angle As Integer = 0)
 		glDisable(GL_TEXTURE_2D)
 		glPushMatrix()
@@ -230,6 +312,16 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_RectCenter(ByVal center As v2d, ByVal size As v2d, ByVal _Color As UInteger, ByVal angle As Integer = 0, ByVal line_size As Integer = 1, ByVal smooth_edges As Integer = 1)
 		glDisable(GL_TEXTURE_2D)
 		glPushMatrix()
@@ -262,6 +354,16 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_RectCenterGlow(ByVal center As v2d, ByVal size As v2d, ByVal _Color As UInteger, ByVal angle As Integer = 0, ByVal line_size As Integer = 1)', ByVal smooth_edges As Integer = 1)
 		glPushMatrix()
 		
@@ -281,6 +383,16 @@ Namespace GLE
 		'glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_RectCenterFill(ByVal center As v2d, ByVal size As v2d, ByVal _Color As UInteger, ByVal angle As Integer = 0)
 		glDisable(GL_TEXTURE_2D)
 		glPushMatrix()
@@ -301,6 +413,16 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_Ellipse(ByVal center As v2d, ByVal radiusX As Integer, ByVal radiusY As Integer, ByVal _Color As UInteger, ByVal angle As Integer = 0, ByVal line_size As Integer = 1, ByVal precision As Integer = 5)
 		glDisable(GL_TEXTURE_2D)
 		glPushMatrix()
@@ -328,6 +450,16 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_EllipseGlow(ByVal center As v2d, ByVal radiusX As Integer, ByVal radiusY As Integer, ByVal _Color As UInteger, ByVal angle As Integer = 0, ByVal line_size As Integer = 1, ByVal precision As Integer = 5)
 		'glDisable(GL_TEXTURE_2D)
 		glPushMatrix()
@@ -356,6 +488,16 @@ Namespace GLE
 		'glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_EllipseFill(ByVal center As v2d, ByVal radiusX As Integer, ByVal radiusY As Integer, ByVal _Color As UInteger, ByVal angle As Integer = 0, ByVal precision As Integer = 5)
 		glDisable(GL_TEXTURE_2D)
 		glPushMatrix()
@@ -381,6 +523,16 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_Triangle(ByVal p1 As v2d, ByVal p2 As v2d, ByVal p3 As v2d, ByVal _Color As UInteger, ByVal line_size As UShort = 1, ByVal smooth_edges As UByte = 1)
 		glDisable(GL_TEXTURE_2D)
 		
@@ -406,12 +558,32 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_TriangleGlow(ByVal p1 As v2d, ByVal p2 As v2d, ByVal p3 As v2d, ByVal _Color As UInteger, ByVal line_size As UShort = 1)', ByVal smooth_edges As UByte = 1)
 		Draw_LineGlow(p1, p2, _Color, line_size)
 		Draw_LineGlow(p2, p3, _Color, line_size)
 		Draw_LineGlow(p3, p1, _Color, line_size)
 	End Sub	
 	
+	/'
+	Function: Draw_
+		
+	
+	Prototype:
+		>
+	
+	Parameters:
+		
+	'/
 	Sub Draw_TriangleFill(ByVal p1 As v2d, ByVal p2 As v2d, ByVal p3 As v2d, ByVal _Color As UInteger)
 		glDisable(GL_TEXTURE_2D)
 		
@@ -426,6 +598,16 @@ Namespace GLE
 		glEnable(GL_TEXTURE_2D)
 	End Sub
 	
+	/'
+	Function: Draw_BlendMode
+		Change the blending mode of the upsequent drawings
+	
+	Protoype:
+		>Sub Draw_BlendMode(ByVal mode As E_BLEND_MODE = BM_TRANS)
+	
+	Parameters:
+		mode (E_BLEND_MODE) - Blend mode (<E_BLEND_MODE>)
+	'/
 	Sub Draw_BlendMode(ByVal mode As E_BLEND_MODE = BM_TRANS)
 		_SetBlendMode(mode)
 	End Sub
